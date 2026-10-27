@@ -177,10 +177,10 @@ fun ServerListScreen(
                                         Icon(Icons.Filled.CheckCircle, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
                                     }
                                 },
-                                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f)),
                                 modifier = Modifier
-                                    .padding(horizontal = 12.dp, vertical = 4.dp)
-                                    .clip(RoundedCornerShape(18.dp))
+                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    .clip(RoundedCornerShape(24.dp))
                                     .clickable(enabled = !choosingFastest) {
                                         val candidates = ServerListClient.candidatesForCountry(countries, row.country.code)
                                         if (candidates.isEmpty()) {
@@ -211,9 +211,15 @@ fun ServerListScreen(
                                         style = MaterialTheme.typography.titleLarge,
                                     )
                                 },
-                                headlineContent = { Text(row.country.name, fontWeight = FontWeight.SemiBold) },
+                                headlineContent = {
+                                    Text(
+                                        row.country.name,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                },
                                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                modifier = Modifier.padding(horizontal = 12.dp),
+                                modifier = Modifier.padding(horizontal = 16.dp),
                             )
                             is LocationRow.CityRow -> {
                                 val city = row.country.cities[row.cityIndex]
@@ -266,8 +272,8 @@ fun ServerListScreen(
                                     },
                                     colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
                                     modifier = Modifier
-                                        .padding(start = 28.dp, end = 12.dp, top = 3.dp, bottom = 3.dp)
-                                        .clip(RoundedCornerShape(16.dp))
+                                        .padding(start = 32.dp, end = 16.dp, top = 3.dp, bottom = 3.dp)
+                                        .clip(RoundedCornerShape(20.dp))
                                         .clickable {
                                             val candidates = ServerListClient.candidatesForCity(countries, row.country.code, city.code)
                                             val chosen = candidates.randomOrNull()
