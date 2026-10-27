@@ -15,7 +15,7 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.core.app.NotificationCompat
-import com.vauth.foxyvpn.FoxyVpnApp
+import com.vauth.foxyvpn.MozVpnApp
 import com.vauth.foxyvpn.MainActivity
 import com.vauth.foxyvpn.data.AppLogger
 import com.vauth.foxyvpn.data.ControlPlaneHttp
@@ -600,7 +600,7 @@ class FoxyVpnService : VpnService() {
             AppLogger.i(TAG, "connect: starting")
             // Reuse the process-wide singletons so UI observers (e.g. selectedProxyFlow) see our updates
             // and we don't rebuild EncryptedSharedPreferences on every connect.
-            val app = applicationContext as? FoxyVpnApp
+            val app = applicationContext as? MozVpnApp
             val tokenStore = app?.tokenStore ?: TokenStore(applicationContext)
             if (tokenStore.loadAuth() == null) error("Not signed in")
             val proxyStateStore = app?.proxyStateStore ?: ProxyStateStore(applicationContext)
@@ -1154,7 +1154,7 @@ class FoxyVpnService : VpnService() {
     private suspend fun resolveConnectCandidate(proxyStateStore: ProxyStateStore): ProxyCandidate {
         proxyStateStore.load()?.let { return it }
         AppLogger.i(TAG, "connect: no server previously selected; auto-selecting recommended location")
-        val client = (applicationContext as? FoxyVpnApp)?.serverListClient ?: ServerListClient(applicationContext)
+        val client = (applicationContext as? MozVpnApp)?.serverListClient ?: ServerListClient(applicationContext)
         val countries = runCatching {
             withTimeout(SERVER_LIST_FETCH_TIMEOUT_MS) { client.fetchCountries() }
         }.getOrElse {
@@ -1171,7 +1171,7 @@ class FoxyVpnService : VpnService() {
 
     private suspend fun discoverAlternateCandidates(primary: ProxyCandidate): List<ProxyCandidate> {
         val attempt = runCatching {
-            val client = (applicationContext as? FoxyVpnApp)?.serverListClient ?: ServerListClient(applicationContext)
+            val client = (applicationContext as? MozVpnApp)?.serverListClient ?: ServerListClient(applicationContext)
             val countries = runCatching {
                 withTimeout(SERVER_LIST_FETCH_TIMEOUT_MS) { client.fetchCountries() }
             }.getOrElse {
@@ -1405,7 +1405,7 @@ class FoxyVpnService : VpnService() {
             this, REQUEST_CODE_DISCONNECT, Intent(this, FoxyVpnService::class.java).setAction(ACTION_DISCONNECT),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        val builder = NotificationCompat.Builder(this, FoxyVpnApp.VPN_NOTIFICATION_CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, MozVpnApp.VPN_NOTIFICATION_CHANNEL_ID)
             .setContentTitle("Moz VPN")
             .setContentText(text)
             .setSmallIcon(android.R.drawable.ic_lock_lock)
@@ -1455,7 +1455,7 @@ class FoxyVpnService : VpnService() {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
             val text = "The VPN disconnected and your traffic is no longer protected."
-            val notification = NotificationCompat.Builder(this, FoxyVpnApp.VPN_ALERT_NOTIFICATION_CHANNEL_ID)
+            val notification = NotificationCompat.Builder(this, MozVpnApp.VPN_ALERT_NOTIFICATION_CHANNEL_ID)
                 .setContentTitle("Moz VPN disconnected")
                 .setContentText(text)
                 .setStyle(NotificationCompat.BigTextStyle().bigText("$text\n$reason\nTip: turn on \"Block connections without VPN\" in Android's VPN settings to prevent this."))

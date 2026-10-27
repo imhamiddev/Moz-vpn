@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
     ) {  }
 
     private fun requestConnect() {
-        if ((application as FoxyVpnApp).settingsStore.proxyOnlyMode) {
+        if ((application as MozVpnApp).settingsStore.proxyOnlyMode) {
             requestNotificationPermissionIfNeeded()
             FoxyVpnService.start(this)
             return
@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val app = application as FoxyVpnApp
+        val app = application as MozVpnApp
         setContent {
 
             val themeController = rememberThemeController(app.settingsStore)

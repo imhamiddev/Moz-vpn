@@ -74,7 +74,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.vauth.foxyvpn.FoxyVpnApp
+import com.vauth.foxyvpn.MozVpnApp
 import com.vauth.foxyvpn.data.GUARDIAN_ENDPOINT_DEFAULT
 import com.vauth.foxyvpn.data.RECOMMENDED_COUNTRY_CODE
 import com.vauth.foxyvpn.data.ServerListClient
@@ -98,7 +98,7 @@ private const val USER_INFO_TTL_MS = 10 * 60_000L
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
-    app: FoxyVpnApp,
+    app: MozVpnApp,
     themeController: ThemeController,
     onRequestConnect: () -> Unit,
     onDisconnect: () -> Unit,

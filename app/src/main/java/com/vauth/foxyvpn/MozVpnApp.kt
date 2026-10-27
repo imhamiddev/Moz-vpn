@@ -24,7 +24,7 @@ import com.vauth.foxyvpn.widget.QuickConnectWidgetProvider
 import org.conscrypt.Conscrypt
 import java.security.Security
 
-class FoxyVpnApp : Application() {
+class MozVpnApp : Application() {
 
     /** Process-lifetime scope for fire-and-forget work that must outlive a screen (e.g. sign-out revocation). */
     val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -59,7 +59,7 @@ class FoxyVpnApp : Application() {
         runCatching {
             Security.insertProviderAt(Conscrypt.newProvider(), 1)
         }.onFailure {
-            Log.w("FoxyVpnApp", "failed to install Conscrypt security provider", it)
+            Log.w("MozVpnApp", "failed to install Conscrypt security provider", it)
         }
     }
 

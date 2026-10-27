@@ -7,7 +7,7 @@ import android.net.VpnService
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import com.vauth.foxyvpn.FoxyVpnApp
+import com.vauth.foxyvpn.MozVpnApp
 import com.vauth.foxyvpn.MainActivity
 import com.vauth.foxyvpn.R
 import com.vauth.foxyvpn.data.model.ConnectionState
@@ -49,7 +49,7 @@ class QuickConnectTileService : TileService() {
                 FoxyVpnService.stop(this)
             }
             ConnectionState.DISCONNECTED -> {
-                val app = applicationContext as? FoxyVpnApp
+                val app = applicationContext as? MozVpnApp
                 val tokenStore = app?.tokenStore ?: TokenStore(this)
                 if (!tokenStore.hasStoredSession()) {
                     launchMainActivityAndCollapse()

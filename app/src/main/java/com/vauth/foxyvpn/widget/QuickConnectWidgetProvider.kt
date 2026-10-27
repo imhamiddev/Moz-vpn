@@ -9,7 +9,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.VpnService
 import android.widget.RemoteViews
-import com.vauth.foxyvpn.FoxyVpnApp
+import com.vauth.foxyvpn.MozVpnApp
 import com.vauth.foxyvpn.MainActivity
 import com.vauth.foxyvpn.R
 import com.vauth.foxyvpn.data.SettingsStore
@@ -38,7 +38,7 @@ class QuickConnectWidgetProvider : AppWidgetProvider() {
                     FoxyVpnService.stop(context)
                 }
                 ConnectionState.DISCONNECTED -> {
-                    val app = context.applicationContext as? FoxyVpnApp
+                    val app = context.applicationContext as? MozVpnApp
                     val tokenStore = app?.tokenStore ?: TokenStore(context)
                     if (!tokenStore.hasStoredSession()) {
                         launchMainActivity(context)
@@ -99,7 +99,7 @@ class QuickConnectWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_button, pendingIntent)
 
-            val settingsStore = (context.applicationContext as? FoxyVpnApp)?.settingsStore ?: SettingsStore(context)
+            val settingsStore = (context.applicationContext as? MozVpnApp)?.settingsStore ?: SettingsStore(context)
             val systemDark = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
             val isDark = when (settingsStore.themeMode) {
                 ThemeMode.SYSTEM -> systemDark

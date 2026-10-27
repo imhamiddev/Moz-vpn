@@ -6,7 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.vauth.foxyvpn.FoxyVpnApp
+import com.vauth.foxyvpn.MozVpnApp
 import com.vauth.foxyvpn.data.ControlPlaneHttp
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -31,7 +31,7 @@ object FoxyRoutes {
 @Composable
 fun FoxyNavGraph(
     navController: NavHostController = rememberNavController(),
-    app: FoxyVpnApp,
+    app: MozVpnApp,
     themeController: ThemeController,
     onRequestConnect: () -> Unit,
     onDisconnect: () -> Unit,
