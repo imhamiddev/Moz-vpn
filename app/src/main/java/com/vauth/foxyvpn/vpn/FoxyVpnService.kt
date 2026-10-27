@@ -1246,7 +1246,7 @@ class FoxyVpnService : VpnService() {
             AppLogger.i(TAG, "establishTun: dns=mapdns ($dnsServer)")
         }
         return Builder()
-            .setSession("FoxyVPN")
+            .setSession("Moz VPN")
             .addAddress(HevSocks5TunnelConfig.TUN_ADDRESS, 32)
             .addRoute("0.0.0.0", 0)
             .apply {
