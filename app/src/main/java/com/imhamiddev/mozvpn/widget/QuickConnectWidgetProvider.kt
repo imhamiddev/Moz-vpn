@@ -115,9 +115,9 @@ class QuickConnectWidgetProvider : AppWidgetProvider() {
             }
 
             val iconColor = when (state) {
-                ConnectionState.CONNECTED -> if (isDark) 0xFF7BDF92.toInt() else 0xFF1B6E2F.toInt()
-                ConnectionState.CONNECTING -> if (isDark) 0xFFFFC46B.toInt() else 0xFF8A5A00.toInt()
-                ConnectionState.DISCONNECTED -> if (isDark) 0xFFE9E0E4.toInt() else 0xFF1E1A1D.toInt()
+                ConnectionState.CONNECTED -> if (isDark) 0xFF3EE6C5.toInt() else 0xFF00907B.toInt()
+                ConnectionState.CONNECTING -> if (isDark) 0xFFFFC857.toInt() else 0xFFC77700.toInt()
+                ConnectionState.DISCONNECTED -> if (isDark) 0xFFE9E6F7.toInt() else 0xFF14121F.toInt()
             }
 
             views.setImageViewResource(R.id.widget_background, bgRes)
