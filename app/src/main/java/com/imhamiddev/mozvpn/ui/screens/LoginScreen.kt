@@ -104,6 +104,14 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                        MaterialTheme.colorScheme.background,
+                    ),
+                ),
+            )
             .imePadding(),
         contentAlignment = Alignment.Center,
     ) {
