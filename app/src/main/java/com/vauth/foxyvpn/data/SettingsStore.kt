@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.vauth.foxyvpn.ui.theme.ThemeMode
-import com.vauth.foxyvpn.vpn.FoxyVpnService
+import com.vauth.foxyvpn.vpn.MozVpnService
 import com.vauth.foxyvpn.widget.QuickConnectWidgetProvider
 
 class SettingsStore(context: Context) {
@@ -30,7 +30,7 @@ class SettingsStore(context: Context) {
         } ?: ThemeMode.SYSTEM
         set(value) {
             prefs.edit().putString(KEY_THEME_MODE, value.name).apply()
-            QuickConnectWidgetProvider.updateAll(appContext, FoxyVpnService.state.value)
+            QuickConnectWidgetProvider.updateAll(appContext, MozVpnService.state.value)
         }
 
     var exitCheckEnabled: Boolean

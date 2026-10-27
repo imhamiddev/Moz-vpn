@@ -17,7 +17,7 @@ import com.vauth.foxyvpn.data.ProxyStateStore
 import com.vauth.foxyvpn.data.ServerListClient
 import com.vauth.foxyvpn.data.SettingsStore
 import com.vauth.foxyvpn.data.TokenStore
-import com.vauth.foxyvpn.vpn.FoxyVpnService
+import com.vauth.foxyvpn.vpn.MozVpnService
 import com.vauth.foxyvpn.vpn.upstream.NettyLoggingBridge
 import com.vauth.foxyvpn.vpn.upstream.UpstreamTrust
 import com.vauth.foxyvpn.widget.QuickConnectWidgetProvider
@@ -83,7 +83,7 @@ class MozVpnApp : Application() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        QuickConnectWidgetProvider.updateAll(this, FoxyVpnService.state.value)
+        QuickConnectWidgetProvider.updateAll(this, MozVpnService.state.value)
     }
 
     companion object {

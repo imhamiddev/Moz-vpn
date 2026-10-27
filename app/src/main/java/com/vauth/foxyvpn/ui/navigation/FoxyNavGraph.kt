@@ -17,7 +17,7 @@ import com.vauth.foxyvpn.ui.screens.ServerListScreen
 import com.vauth.foxyvpn.ui.screens.SettingsScreen
 import com.vauth.foxyvpn.ui.screens.SplashScreen
 import com.vauth.foxyvpn.ui.theme.ThemeController
-import com.vauth.foxyvpn.vpn.FoxyVpnService
+import com.vauth.foxyvpn.vpn.MozVpnService
 
 object FoxyRoutes {
     const val SPLASH = "splash"
@@ -72,7 +72,7 @@ fun FoxyNavGraph(
                 serverListClient = app.serverListClient,
                 proxyStateStore = app.proxyStateStore,
                 onServerSelected = { locationChanged ->
-                    if (locationChanged) FoxyVpnService.reconnect(context)
+                    if (locationChanged) MozVpnService.reconnect(context)
                     navController.popBackStack()
                 },
                 onBack = { navController.popBackStack() },

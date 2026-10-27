@@ -13,7 +13,7 @@ import com.vauth.foxyvpn.R
 import com.vauth.foxyvpn.data.model.ConnectionState
 import com.vauth.foxyvpn.data.SettingsStore
 import com.vauth.foxyvpn.data.TokenStore
-import com.vauth.foxyvpn.vpn.FoxyVpnService
+import com.vauth.foxyvpn.vpn.MozVpnService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -30,7 +30,7 @@ class QuickConnectTileService : TileService() {
         super.onStartListening()
         listenJob?.cancel()
         listenJob = serviceScope.launch {
-            FoxyVpnService.state.collect { state ->
+            MozVpnService.state.collect { state ->
                 updateTileState(state)
             }
         }
@@ -44,9 +44,9 @@ class QuickConnectTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
-        when (FoxyVpnService.state.value) {
+        when (MozVpnService.state.value) {
             ConnectionState.CONNECTED, ConnectionState.CONNECTING -> {
-                FoxyVpnService.stop(this)
+                MozVpnService.stop(this)
             }
             ConnectionState.DISCONNECTED -> {
                 val app = applicationContext as? MozVpnApp
@@ -58,7 +58,7 @@ class QuickConnectTileService : TileService() {
 
                 val settingsStore = app?.settingsStore ?: SettingsStore(this)
                 if (settingsStore.proxyOnlyMode) {
-                    FoxyVpnService.start(this)
+                    MozVpnService.start(this)
                     return
                 }
 
@@ -66,7 +66,7 @@ class QuickConnectTileService : TileService() {
                 if (prepareIntent != null) {
                     launchMainActivityAndCollapse()
                 } else {
-                    FoxyVpnService.start(this)
+                    MozVpnService.start(this)
                 }
             }
         }

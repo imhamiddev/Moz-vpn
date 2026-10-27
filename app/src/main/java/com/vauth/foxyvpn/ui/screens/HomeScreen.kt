@@ -85,7 +85,7 @@ import com.vauth.foxyvpn.ui.theme.LocalFoxyStatusColors
 import com.vauth.foxyvpn.ui.theme.ThemeController
 import com.vauth.foxyvpn.ui.theme.ThemeMode
 import com.vauth.foxyvpn.vpn.ExitCheck
-import com.vauth.foxyvpn.vpn.FoxyVpnService
+import com.vauth.foxyvpn.vpn.MozVpnService
 import com.vauth.foxyvpn.vpn.IpLocationInfo
 import com.vauth.foxyvpn.vpn.PingUtil
 import kotlinx.coroutines.delay
@@ -105,12 +105,12 @@ fun HomeScreen(
     onOpenServers: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
-    val state by FoxyVpnService.state.collectAsState()
-    val lastError by FoxyVpnService.lastError.collectAsState()
-    val liveStats by FoxyVpnService.vpnLiveStats.collectAsState()
-    val connectedAtEpochMs by FoxyVpnService.connectedAtEpochMs.collectAsState()
-    val pingLatency by FoxyVpnService.pingLatencyMs.collectAsState()
-    val vpnEdgeIp by FoxyVpnService.vpnEdgeIp.collectAsState()
+    val state by MozVpnService.state.collectAsState()
+    val lastError by MozVpnService.lastError.collectAsState()
+    val liveStats by MozVpnService.vpnLiveStats.collectAsState()
+    val connectedAtEpochMs by MozVpnService.connectedAtEpochMs.collectAsState()
+    val pingLatency by MozVpnService.pingLatencyMs.collectAsState()
+    val vpnEdgeIp by MozVpnService.vpnEdgeIp.collectAsState()
 
     val selectedProxy by app.proxyStateStore.selectedProxyFlow.collectAsState()
 
@@ -509,7 +509,7 @@ fun HomeScreen(
                             // "Protected" must only appear when the device's traffic really goes through the
                             // tunnel: not in proxy-only mode (only apps that use the local proxy are covered)
                             // and not while the upstream tunnel is being re-established.
-                            val tunnelDegraded by FoxyVpnService.tunnelDegraded.collectAsState()
+                            val tunnelDegraded by MozVpnService.tunnelDegraded.collectAsState()
                             val proxyOnly = app.settingsStore.proxyOnlyMode
                             val badgeText = when {
                                 !isConnected -> "Exposed"
@@ -576,7 +576,7 @@ fun HomeScreen(
                                     isPinging = true
                                     haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                                     if (state == ConnectionState.CONNECTED) {
-                                        FoxyVpnService.pingNow()
+                                        MozVpnService.pingNow()
                                     } else {
                                         val target = selectedProxy ?: app.proxyStateStore.load() ?: run {
                                             val cached = app.serverListClient.loadCachedCountries()

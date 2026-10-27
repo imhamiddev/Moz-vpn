@@ -17,7 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.vauth.foxyvpn.ui.navigation.FoxyNavGraph
 import com.vauth.foxyvpn.ui.theme.FoxyVpnTheme
 import com.vauth.foxyvpn.ui.theme.rememberThemeController
-import com.vauth.foxyvpn.vpn.FoxyVpnService
+import com.vauth.foxyvpn.vpn.MozVpnService
 
 class MainActivity : ComponentActivity() {
 
@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
     ) { result ->
         if (result.resultCode == RESULT_OK) {
             requestNotificationPermissionIfNeeded()
-            FoxyVpnService.start(this)
+            MozVpnService.start(this)
         } else {
 
             Toast.makeText(
@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
     private fun requestConnect() {
         if ((application as MozVpnApp).settingsStore.proxyOnlyMode) {
             requestNotificationPermissionIfNeeded()
-            FoxyVpnService.start(this)
+            MozVpnService.start(this)
             return
         }
 
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
             vpnPermissionLauncher.launch(prepareIntent)
         } else {
             requestNotificationPermissionIfNeeded()
-            FoxyVpnService.start(this)
+            MozVpnService.start(this)
         }
     }
 
@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
                         app = app,
                         themeController = themeController,
                         onRequestConnect = { requestConnect() },
-                        onDisconnect = { FoxyVpnService.stop(this) },
+                        onDisconnect = { MozVpnService.stop(this) },
                     )
                 }
             }

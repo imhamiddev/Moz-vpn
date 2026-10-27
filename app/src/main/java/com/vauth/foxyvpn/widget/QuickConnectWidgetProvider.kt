@@ -16,13 +16,13 @@ import com.vauth.foxyvpn.data.SettingsStore
 import com.vauth.foxyvpn.data.TokenStore
 import com.vauth.foxyvpn.data.model.ConnectionState
 import com.vauth.foxyvpn.ui.theme.ThemeMode
-import com.vauth.foxyvpn.vpn.FoxyVpnService
+import com.vauth.foxyvpn.vpn.MozVpnService
 
 class QuickConnectWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         for (appWidgetId in appWidgetIds) {
-            updateWidget(context, appWidgetManager, appWidgetId, FoxyVpnService.state.value)
+            updateWidget(context, appWidgetManager, appWidgetId, MozVpnService.state.value)
         }
     }
 
@@ -33,9 +33,9 @@ class QuickConnectWidgetProvider : AppWidgetProvider() {
         const val ACTION_TOGGLE_VPN = "com.vauth.foxyvpn.action.TOGGLE_VPN"
 
         fun toggleVpn(context: Context) {
-            when (FoxyVpnService.state.value) {
+            when (MozVpnService.state.value) {
                 ConnectionState.CONNECTED, ConnectionState.CONNECTING -> {
-                    FoxyVpnService.stop(context)
+                    MozVpnService.stop(context)
                 }
                 ConnectionState.DISCONNECTED -> {
                     val app = context.applicationContext as? MozVpnApp
@@ -47,7 +47,7 @@ class QuickConnectWidgetProvider : AppWidgetProvider() {
 
                     val settingsStore = app?.settingsStore ?: SettingsStore(context)
                     if (settingsStore.proxyOnlyMode) {
-                        FoxyVpnService.start(context)
+                        MozVpnService.start(context)
                         return
                     }
 
@@ -55,7 +55,7 @@ class QuickConnectWidgetProvider : AppWidgetProvider() {
                     if (prepareIntent != null) {
                         launchMainActivity(context)
                     } else {
-                        FoxyVpnService.start(context)
+                        MozVpnService.start(context)
                     }
                 }
             }

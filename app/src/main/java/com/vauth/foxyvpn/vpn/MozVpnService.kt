@@ -68,7 +68,7 @@ data class VpnLiveStats(
     val sessionBytes: Long = 0L,
 )
 
-private const val TAG = "FoxyVpnService"
+private const val TAG = "MozVpnService"
 private const val CONNECT_TIMEOUT_MS = 20_000L
 private const val SERVER_LIST_FETCH_TIMEOUT_MS = 15_000L
 
@@ -140,7 +140,7 @@ private fun proxyPassRenewalDelayMs(expiresAtEpochSeconds: Long?): Long {
         .coerceAtLeast(PROXY_PASS_RENEWAL_FLOOR_MS)
 }
 
-class FoxyVpnService : VpnService() {
+class MozVpnService : VpnService() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -303,7 +303,7 @@ class FoxyVpnService : VpnService() {
 
         scope.launch {
             _state.collect { state ->
-                QuickConnectWidgetProvider.updateAll(this@FoxyVpnService, state)
+                QuickConnectWidgetProvider.updateAll(this@MozVpnService, state)
             }
         }
     }
@@ -1402,7 +1402,7 @@ class FoxyVpnService : VpnService() {
         )
 
         val disconnectIntent = PendingIntent.getService(
-            this, REQUEST_CODE_DISCONNECT, Intent(this, FoxyVpnService::class.java).setAction(ACTION_DISCONNECT),
+            this, REQUEST_CODE_DISCONNECT, Intent(this, MozVpnService::class.java).setAction(ACTION_DISCONNECT),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         val builder = NotificationCompat.Builder(this, MozVpnApp.VPN_NOTIFICATION_CHANNEL_ID)
@@ -1541,7 +1541,7 @@ class FoxyVpnService : VpnService() {
          */
         fun start(context: Context): Boolean {
             return try {
-                context.startForegroundService(Intent(context, FoxyVpnService::class.java).setAction(ACTION_CONNECT))
+                context.startForegroundService(Intent(context, MozVpnService::class.java).setAction(ACTION_CONNECT))
                 true
             } catch (failure: Exception) {
                 AppLogger.e(TAG, "could not start the VPN service", failure)
@@ -1560,7 +1560,7 @@ class FoxyVpnService : VpnService() {
         /** Re-dial using the currently saved location. No-op if the VPN is not connected/connecting. */
         fun reconnect(context: Context) {
             if (_state.value == ConnectionState.DISCONNECTED) return
-            val intent = Intent(context, FoxyVpnService::class.java).setAction(ACTION_RECONNECT)
+            val intent = Intent(context, MozVpnService::class.java).setAction(ACTION_RECONNECT)
             runCatching { context.startService(intent) }
                 .onFailure {
                     AppLogger.w(TAG, "could not deliver the reconnect intent; the service is not running", it)
@@ -1569,7 +1569,7 @@ class FoxyVpnService : VpnService() {
 
         fun stop(context: Context) {
 
-            val intent = Intent(context, FoxyVpnService::class.java).setAction(ACTION_DISCONNECT)
+            val intent = Intent(context, MozVpnService::class.java).setAction(ACTION_DISCONNECT)
             runCatching { context.startService(intent) }
                 .onFailure {
                     AppLogger.w(TAG, "could not deliver the disconnect intent; the service is not running", it)
