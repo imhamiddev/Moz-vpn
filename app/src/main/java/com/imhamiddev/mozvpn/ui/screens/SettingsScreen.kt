@@ -96,7 +96,6 @@ fun SettingsScreen(
     var localProxyUsername by remember { mutableStateOf(runCatching { settingsStore.localProxyUsername }.getOrDefault("")) }
     var localProxyPassword by remember { mutableStateOf(runCatching { settingsStore.localProxyPassword }.getOrDefault("")) }
     var showLocalProxyCredentialsDialog by remember { mutableStateOf(false) }
-    var excludedApps by remember { mutableStateOf(settingsStore.excludedApps) }
     var mtu by remember { mutableStateOf(settingsStore.mtu) }
     var showDnsProviderDialog by remember { mutableStateOf(false) }
     var showBootstrapDnsDialog by remember { mutableStateOf(false) }
@@ -108,7 +107,6 @@ fun SettingsScreen(
     var showUpstreamProxyTypeDialog by remember { mutableStateOf(false) }
     var showUpstreamProxyAddressDialog by remember { mutableStateOf(false) }
     var showUpstreamProxyCredentialsDialog by remember { mutableStateOf(false) }
-    var showSplitTunnelDialog by remember { mutableStateOf(false) }
     var tlsSplitMode by remember { mutableStateOf(settingsStore.tlsSplitMode) }
     var showTlsSplitDialog by remember { mutableStateOf(false) }
 
@@ -249,17 +247,6 @@ fun SettingsScreen(
                 settingsStore.upstreamProxyUsername = username
                 settingsStore.upstreamProxyPassword = password
                 showUpstreamProxyCredentialsDialog = false
-            },
-        )
-    }
-    if (showSplitTunnelDialog) {
-        SplitTunnelDialog(
-            current = excludedApps,
-            onDismiss = { showSplitTunnelDialog = false },
-            onConfirm = {
-                excludedApps = it
-                settingsStore.excludedApps = it
-                showSplitTunnelDialog = false
             },
         )
     }
@@ -1028,111 +1015,6 @@ private fun UpstreamProxyCredentialsDialog(
         },
         confirmButton = {
             TextButton(onClick = { onConfirm(username, password) }) { Text("Save") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
-        },
-    )
-}
-
-private data class InstalledAppEntry(val packageName: String, val label: String)
-
-@Composable
-private fun SplitTunnelDialog(
-    current: Set<String>,
-    onDismiss: () -> Unit,
-    onConfirm: (Set<String>) -> Unit,
-) {
-    val context = LocalContext.current
-    var selected by remember { mutableStateOf(current) }
-    var searchQuery by remember { mutableStateOf("") }
-
-    val installedApps by produceState<List<InstalledAppEntry>>(initialValue = emptyList()) {
-        value = withContext(Dispatchers.IO) {
-            val packageManager = context.packageManager
-            packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-                .asSequence()
-                .filter { it.packageName != context.packageName }
-                .filter { packageManager.getLaunchIntentForPackage(it.packageName) != null }
-                .map { info: ApplicationInfo ->
-                    InstalledAppEntry(info.packageName, info.loadLabel(packageManager).toString())
-                }
-                .sortedBy { it.label.lowercase() }
-                .toList()
-        }
-    }
-    val filteredApps = remember(installedApps, searchQuery) {
-        if (searchQuery.isBlank()) {
-            installedApps
-        } else {
-            installedApps.filter { it.label.contains(searchQuery, ignoreCase = true) }
-        }
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Split tunneling") },
-        text = {
-            Column {
-                Text(
-                    "Selected apps bypass the VPN and use your normal connection.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                )
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    label = { Text("Search apps") },
-                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                )
-                if (installedApps.isEmpty()) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(24.dp).align(Alignment.CenterHorizontally)
-                    )
-                } else if (filteredApps.isEmpty()) {
-                    Text(
-                        "No apps match \"$searchQuery\".",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 12.dp),
-                    )
-                } else {
-                    LazyColumn(modifier = Modifier.height(360.dp)) {
-                        items(filteredApps, key = { it.packageName }) { app ->
-                            val isChecked = selected.contains(app.packageName)
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        selected = if (isChecked) {
-                                            selected - app.packageName
-                                        } else {
-                                            selected + app.packageName
-                                        }
-                                    }
-                                    .padding(vertical = 2.dp),
-                            ) {
-                                Checkbox(
-                                    checked = isChecked,
-                                    onCheckedChange = {
-                                        selected = if (it) selected + app.packageName else selected - app.packageName
-                                    },
-                                )
-                                Text(app.label, modifier = Modifier.padding(start = 8.dp))
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(selected) }) { Text("Save") }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
