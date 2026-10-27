@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,7 +42,9 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.rounded.DataUsage
+import androidx.compose.material.icons.rounded.Public
+import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -81,6 +84,10 @@ import com.imhamiddev.mozvpn.data.ServerListClient
 import com.imhamiddev.mozvpn.data.formatBytes
 import com.imhamiddev.mozvpn.data.model.ConnectionState
 import com.imhamiddev.mozvpn.data.model.emojiFlag
+import com.imhamiddev.mozvpn.ui.components.ConnectOrb
+import com.imhamiddev.mozvpn.ui.components.MozCard
+import com.imhamiddev.mozvpn.ui.components.StatTile
+import com.imhamiddev.mozvpn.ui.components.StatusChip
 import com.imhamiddev.mozvpn.ui.theme.LocalMozStatusColors
 import com.imhamiddev.mozvpn.ui.theme.ThemeController
 import com.imhamiddev.mozvpn.ui.theme.ThemeMode
@@ -115,18 +122,6 @@ fun HomeScreen(
     val selectedProxy by app.proxyStateStore.selectedProxyFlow.collectAsState()
 
     val statusColors = LocalMozStatusColors.current
-    val targetRingColor = when (state) {
-        ConnectionState.CONNECTED -> statusColors.connected
-        ConnectionState.CONNECTING -> statusColors.connecting
-        ConnectionState.DISCONNECTED -> MaterialTheme.colorScheme.outline
-    }
-
-    val ringColor by animateColorAsState(targetValue = targetRingColor, label = "connect-ring-color")
-    val scale by animateFloatAsState(
-        targetValue = if (state == ConnectionState.CONNECTED) 1f else 0.92f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-        label = "connect-scale",
-    )
 
     val systemInDarkTheme = isSystemInDarkTheme()
     val haptics = LocalHapticFeedback.current
@@ -198,37 +193,77 @@ fun HomeScreen(
         }
     }
 
-    val pulseTransition = rememberInfiniteTransition(label = "connect-pulse")
-    val pulse by pulseTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2200, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "connect-pulse-progress",
-    )
-    val cardBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f))
-    val cardColors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    val isConnected = state == ConnectionState.CONNECTED
+    val tunnelDegraded by MozVpnService.tunnelDegraded.collectAsState()
+    // "Protected" must only appear when the device's traffic really goes through the tunnel: not in
+    // proxy-only mode (only apps that use the local proxy are covered) and not while the upstream
+    // tunnel is being re-established.
+    val proxyOnly = app.settingsStore.proxyOnlyMode
+    val badgeText = when {
+        !isConnected -> "Exposed"
+        proxyOnly -> "Proxy only"
+        tunnelDegraded -> "Reconnecting"
+        else -> "Protected"
+    }
+    val badgeColor = when {
+        !isConnected -> MaterialTheme.colorScheme.error
+        proxyOnly || tunnelDegraded -> MaterialTheme.colorScheme.tertiary
+        else -> statusColors.connected
+    }
+    val ipDisplay = if (isConnected) {
+        vpnEdgeIp?.let {
+            if (it.countryCode.isNotEmpty()) "${it.ip} \u2022 ${it.countryCode}" else it.ip
+        } ?: "Checking\u2026"
+    } else {
+        realIp?.let {
+            if (it.countryCode.isNotEmpty()) "${it.ip} \u2022 ${it.countryCode}" else it.ip
+        } ?: app.settingsStore.cachedRealIp?.let { cachedIp ->
+            val cachedCountry = app.settingsStore.cachedRealCountry
+            if (!cachedCountry.isNullOrEmpty()) "$cachedIp \u2022 $cachedCountry" else cachedIp
+        } ?: "Checking\u2026"
+    }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                title = {
+    Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier
+                    .widthIn(max = 520.dp)
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                // ---- Header: wordmark, protection chip, theme toggle ----------------------------
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
-                        "Moz VPN",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        "Moz",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        " VPN",
+                        style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onBackground,
                     )
-                },
-                actions = {
+                    Spacer(Modifier.weight(1f))
+                    StatusChip(text = badgeText, color = badgeColor)
+                    Spacer(Modifier.width(4.dp))
                     val mode = themeController.mode
                     val showingDark = themeController.resolveDark(systemInDarkTheme)
                     Box(
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(44.dp)
                             .clip(CircleShape)
                             .combinedClickable(
                                 role = Role.Button,
@@ -255,138 +290,91 @@ fun HomeScreen(
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    IconButton(onClick = onOpenSettings) {
-                        Icon(
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = "Settings",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-            )
-        },
-    ) { padding ->
-        BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentAlignment = Alignment.TopCenter,
-        ) {
-            val scrollState = rememberScrollState()
-            val naturalContentHeight = 780.dp
-            val availableExtra = (maxHeight - naturalContentHeight).coerceAtLeast(0.dp)
-            val dynamicSpace = if (availableExtra > 0.dp) (availableExtra / 2) else 8.dp
+                }
 
-            Column(
-                modifier = Modifier
-                    .widthIn(max = 520.dp)
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState, enabled = scrollState.maxValue > 0)
-                    .padding(horizontal = 20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Spacer(Modifier.height(dynamicSpace))
+                Spacer(Modifier.height(16.dp))
 
-                // ---- Connect button -------------------------------------------------------------
-                val tunnelUp = state != ConnectionState.DISCONNECTED
-                Box(
-                    modifier = Modifier.size(248.dp),
-                    contentAlignment = Alignment.Center,
+                // ---- Location picker (now at the top) -------------------------------------------
+                MozCard(
+                    onClick = onOpenServers,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                 ) {
-                    if (tunnelUp) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(176.dp)
-                                .graphicsLayer {
-                                    val grow = 1f + pulse * 0.4f
-                                    scaleX = grow
-                                    scaleY = grow
-                                    alpha = (1f - pulse) * 0.45f
-                                }
-                                .border(2.dp, ringColor, CircleShape),
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .size(216.dp)
-                            .clip(CircleShape)
-                            .background(ringColor.copy(alpha = if (tunnelUp) 0.10f else 0.05f)),
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size((158 * scale).dp)
-                            .then(
-                                if (tunnelUp) {
-                                    Modifier.shadow(
-                                        elevation = 28.dp,
-                                        shape = CircleShape,
-                                        ambientColor = ringColor,
-                                        spotColor = ringColor,
-                                    )
-                                } else {
-                                    Modifier
-                                },
+                                .size(44.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            val flag = selectedProxy?.emojiFlag
+                            if (!flag.isNullOrBlank()) {
+                                Text(flag, style = MaterialTheme.typography.titleLarge)
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Rounded.Public,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                        Spacer(Modifier.width(14.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "Virtual location",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
-                            .clip(CircleShape)
-                            .background(
-                                if (tunnelUp) {
-                                    Brush.verticalGradient(listOf(ringColor.copy(alpha = 0.85f), ringColor))
-                                } else {
-                                    Brush.verticalGradient(
-                                        listOf(
-                                            MaterialTheme.colorScheme.surfaceContainerHigh,
-                                            MaterialTheme.colorScheme.surfaceContainer,
-                                        ),
-                                    )
-                                },
+                            Text(
+                                selectedProxy?.let { it.countryName.ifBlank { it.countryCode } } ?: "Recommended",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
-                            .border(
-                                width = 1.5.dp,
-                                color = if (tunnelUp) Color.Transparent else MaterialTheme.colorScheme.outlineVariant,
-                                shape = CircleShape,
-                            )
-                            .clickable(role = Role.Button) {
-                                if (state == ConnectionState.DISCONNECTED) onRequestConnect() else onDisconnect()
-                            },
-                        contentAlignment = Alignment.Center,
-                    ) {
+                        }
                         Icon(
-                            imageVector = Icons.Filled.PowerSettingsNew,
-                            contentDescription = if (state == ConnectionState.DISCONNECTED) "Connect" else "Disconnect",
-                            tint = if (tunnelUp) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(60.dp),
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
 
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(20.dp))
+
+                // ---- Connect orb + status ---------------------------------------------------------
+                ConnectOrb(
+                    state = state,
+                    onClick = {
+                        if (state == ConnectionState.DISCONNECTED) onRequestConnect() else onDisconnect()
+                    },
+                )
+
+                Spacer(Modifier.height(8.dp))
 
                 Text(
                     text = when (state) {
                         ConnectionState.CONNECTED -> "Connected"
                         ConnectionState.CONNECTING -> "Connecting\u2026"
-                        ConnectionState.DISCONNECTED -> "Disconnected"
+                        ConnectionState.DISCONNECTED -> "Tap to connect"
                     },
-                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
 
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(4.dp))
 
                 if (state == ConnectionState.CONNECTING) {
                     Text(
-                        "Tap to cancel",
+                        "Tap the orb to cancel",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 } else {
                     Text(
-                        text = if (state == ConnectionState.CONNECTED) formatDuration(elapsedSeconds) else "00:00:00",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontFeatureSettings = "tnum",
-                            fontWeight = FontWeight.Medium,
-                        ),
-                        color = if (state == ConnectionState.CONNECTED) {
+                        text = if (isConnected) formatDuration(elapsedSeconds) else "00:00:00",
+                        style = MaterialTheme.typography.titleLarge.copy(fontFeatureSettings = "tnum"),
+                        color = if (isConnected) {
                             MaterialTheme.colorScheme.primary
                         } else {
                             MaterialTheme.colorScheme.onSurfaceVariant
@@ -410,166 +398,28 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(24.dp))
 
-                // ---- Location ---------------------------------------------------------------------
-                Card(
-                    onClick = onOpenServers,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = cardColors,
-                    border = cardBorder,
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            val flag = selectedProxy?.emojiFlag
-                            if (!flag.isNullOrBlank()) {
-                                Text(flag, style = MaterialTheme.typography.titleLarge)
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Filled.Public,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                        }
-                        Spacer(Modifier.width(14.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                "Location",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(Modifier.height(2.dp))
-                            Text(
-                                selectedProxy?.let { it.countryName.ifBlank { it.countryCode } } ?: "Recommended",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                // ---- Current IP + protection badge ----------------------------------------------
-                val isConnected = state == ConnectionState.CONNECTED
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = cardColors,
-                    border = cardBorder,
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        val ipDisplay = if (isConnected) {
-                            vpnEdgeIp?.let {
-                                if (it.countryCode.isNotEmpty()) "${it.ip} \u2022 ${it.countryCode}" else it.ip
-                            } ?: "Checking\u2026"
-                        } else {
-                            realIp?.let {
-                                if (it.countryCode.isNotEmpty()) "${it.ip} \u2022 ${it.countryCode}" else it.ip
-                            } ?: app.settingsStore.cachedRealIp?.let { cachedIp ->
-                                val cachedCountry = app.settingsStore.cachedRealCountry
-                                if (!cachedCountry.isNullOrEmpty()) "$cachedIp \u2022 $cachedCountry" else cachedIp
-                            } ?: "Checking\u2026"
-                        }
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "Current IP",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Spacer(Modifier.height(2.dp))
-                                Text(
-                                    ipDisplay,
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
-                            Spacer(Modifier.width(8.dp))
-                            // "Protected" must only appear when the device's traffic really goes through the
-                            // tunnel: not in proxy-only mode (only apps that use the local proxy are covered)
-                            // and not while the upstream tunnel is being re-established.
-                            val tunnelDegraded by MozVpnService.tunnelDegraded.collectAsState()
-                            val proxyOnly = app.settingsStore.proxyOnlyMode
-                            val badgeText = when {
-                                !isConnected -> "Exposed"
-                                proxyOnly -> "Proxy only"
-                                tunnelDegraded -> "Reconnecting"
-                                else -> "Protected"
-                            }
-                            val badgeColor = when {
-                                !isConnected -> MaterialTheme.colorScheme.error
-                                proxyOnly || tunnelDegraded -> MaterialTheme.colorScheme.tertiary
-                                else -> statusColors.connected
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(badgeColor.copy(alpha = 0.14f))
-                                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                            ) {
-                                Text(
-                                    badgeText,
-                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = badgeColor,
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                // ---- Data used / Latency --------------------------------------------------------
+                // ---- Live stats ---------------------------------------------------------------------
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    Card(
+                    StatTile(
+                        icon = Icons.Rounded.DataUsage,
+                        label = "Data used",
+                        value = if (isConnected) formatBytes(liveStats.sessionBytes) else "0.0 MB",
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = cardColors,
-                        border = cardBorder,
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            Text(
-                                "Data Used",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                if (isConnected) formatBytes(liveStats.sessionBytes) else "0.0 MB",
-                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
-                    }
-                    Card(
+                    )
+                    val currentPing = if (isConnected) pingLatency else disconnectedPingLatency
+                    StatTile(
+                        icon = Icons.Rounded.Speed,
+                        label = "Latency",
+                        value = when {
+                            isPinging -> "Pinging\u2026"
+                            currentPing != null -> "$currentPing ms"
+                            else -> "\u2014 ms"
+                        },
+                        valueColor = if (currentPing != null) statusColors.connected else MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = cardColors,
-                        border = cardBorder,
                         onClick = {
                             if (!isPinging) {
                                 scope.launch {
@@ -593,88 +443,83 @@ fun HomeScreen(
                                 }
                             }
                         },
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            Text(
-                                "Latency",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            val currentPing = if (isConnected) pingLatency else disconnectedPingLatency
-                            Text(
-                                text = when {
-                                    isPinging -> "Pinging\u2026"
-                                    currentPing != null -> "$currentPing ms"
-                                    else -> "\u2014 ms"
-                                },
-                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                                color = if (currentPing != null) statusColors.connected else MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
-                    }
+                    )
                 }
 
                 Spacer(Modifier.height(12.dp))
 
-                // ---- Monthly quota --------------------------------------------------------------
-                Card(
+                // ---- Current IP ---------------------------------------------------------------------
+                MozCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = cardColors,
-                    border = cardBorder,
+                    accent = if (isConnected && !proxyOnly && !tunnelDegraded) statusColors.connected else null,
                 ) {
-                    Column(Modifier.padding(16.dp)) {
-                        val remaining = quotaRemaining
-                        val max = quotaMax
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                "Monthly Quota Remaining",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.weight(1f),
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            val quotaText = when {
-                                isUnlimited -> "Unlimited"
-                                remaining != null && max != null -> "${formatBytes(remaining)} / ${formatBytes(max)}"
-                                remaining != null -> formatBytes(remaining)
-                                max != null -> "Limited to ${formatBytes(max)}"
-                                else -> "\u2014"
-                            }
-                            Text(
-                                quotaText,
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
-
-                        Spacer(Modifier.height(12.dp))
-
-                        val quotaFraction = when {
-                            isUnlimited -> 1f
-                            max != null && max > 0L && remaining != null ->
-                                (remaining.toFloat() / max.toFloat()).coerceIn(0f, 1f)
-                            else -> 0f
-                        }
-
-                        LinearProgressIndicator(
-                            progress = { quotaFraction },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(8.dp)
-                                .clip(RoundedCornerShape(4.dp)),
-                            color = if (isConnected) statusColors.connected else MaterialTheme.colorScheme.outline,
-                            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        )
-                    }
+                    Text(
+                        "Your public IP",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        ipDisplay,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                 }
 
-                Spacer(Modifier.height(dynamicSpace.coerceAtLeast(16.dp)))
+                Spacer(Modifier.height(12.dp))
+
+                // ---- Monthly quota ------------------------------------------------------------------
+                MozCard(modifier = Modifier.fillMaxWidth()) {
+                    val remaining = quotaRemaining
+                    val max = quotaMax
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            "Monthly quota left",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        val quotaText = when {
+                            isUnlimited -> "Unlimited"
+                            remaining != null && max != null -> "${formatBytes(remaining)} / ${formatBytes(max)}"
+                            remaining != null -> formatBytes(remaining)
+                            max != null -> "Limited to ${formatBytes(max)}"
+                            else -> "\u2014"
+                        }
+                        Text(
+                            quotaText,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+
+                    val quotaFraction = when {
+                        isUnlimited -> 1f
+                        max != null && max > 0L && remaining != null ->
+                            (remaining.toFloat() / max.toFloat()).coerceIn(0f, 1f)
+                        else -> 0f
+                    }
+
+                    LinearProgressIndicator(
+                        progress = { quotaFraction },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(4.dp)),
+                        color = if (isConnected) statusColors.connected else MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    )
+                }
+
+                // Leave room for the floating bottom bar.
+                Spacer(Modifier.height(24.dp))
             }
         }
     }
