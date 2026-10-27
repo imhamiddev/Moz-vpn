@@ -1551,7 +1551,7 @@ class FoxyVpnService : VpnService() {
         }
 
         private val releaseExecutor = java.util.concurrent.Executors.newSingleThreadExecutor { runnable ->
-            Thread(runnable, "foxyvpn-release").apply { isDaemon = true }
+            Thread(runnable, "mozvpn-release").apply { isDaemon = true }
         }
 
         @Volatile
