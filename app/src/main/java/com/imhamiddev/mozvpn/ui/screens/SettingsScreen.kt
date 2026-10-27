@@ -438,30 +438,6 @@ fun SettingsScreen(
 
             }
             Spacer(Modifier.height(12.dp))
-            SectionLabel("Split tunneling")
-            MozCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                contentPadding = PaddingValues(vertical = 4.dp),
-            ) {
-            MozListItem(
-                headlineContent = { Text("Excluded apps") },
-                supportingContent = {
-                    Text(
-                        if (excludedApps.isEmpty()) {
-                            "None"
-                        } else {
-                            "${excludedApps.size} app(s) bypass the VPN"
-                        },
-                    )
-                },
-                trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
-                modifier = Modifier.clickable { showSplitTunnelDialog = true },
-            )
-
-            }
-            Spacer(Modifier.height(12.dp))
             SectionLabel("Advanced")
             MozCard(
                 modifier = Modifier
