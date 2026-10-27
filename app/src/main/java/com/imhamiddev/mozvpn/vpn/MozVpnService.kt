@@ -709,7 +709,9 @@ class MozVpnService : VpnService() {
                     AppLogger.w(TAG, "HTTP proxy port equals the SOCKS5 port ($socksPort); HTTP proxy disabled for this session")
                 }
             }
+            val splitMode = settingsStore.splitTunnelMode
             val excludedApps = settingsStore.excludedApps
+            val includedApps = settingsStore.includedApps
 
             val dohUrl = settingsStore.effectiveDohUrl
 
@@ -767,7 +769,7 @@ class MozVpnService : VpnService() {
                         "local proxy at $socksBindAddress:$socksPort",
                 )
             } else {
-                val fd = establishTun(excludedApps, dohUrl, mtu = settingsStore.mtu) ?: error("Failed to establish TUN interface")
+                val fd = establishTun(splitMode, excludedApps, includedApps, dohUrl, mtu = settingsStore.mtu) ?: error("Failed to establish TUN interface")
                 tunFd = fd
                 tunnelInterfaceActive = true
 
@@ -1236,7 +1238,9 @@ class MozVpnService : VpnService() {
     }
 
     private fun establishTun(
+        splitMode: SettingsStore.SplitTunnelMode,
         excludedApps: Set<String>,
+        includedApps: Set<String>,
         dohUrl: String?,
         mtu: Int = HevSocks5TunnelConfig.TUN_MTU,
     ): ParcelFileDescriptor? {
@@ -1308,15 +1312,45 @@ class MozVpnService : VpnService() {
                         .onFailure { AppLogger.d(TAG, "could not mark the tunnel as unmetered: ${it.message}") }
                 }
             }
-            .apply {
-                runCatching { addDisallowedApplication(packageName) }
-                    .onFailure { AppLogger.w(TAG, "failed to exclude own app from the VPN tunnel", it) }
-                for (excludedPackage in excludedApps) {
-                    runCatching { addDisallowedApplication(excludedPackage) }
-                        .onFailure { AppLogger.w(TAG, "failed to exclude $excludedPackage from the VPN tunnel (app may be uninstalled)", it) }
-                }
-            }
+            .apply { applySplitTunnel(splitMode, excludedApps, includedApps) }
             .establish()
+    }
+
+    /**
+     * Applies the per-app split tunnel to the builder. Android does not allow mixing allowed and
+     * disallowed apps on one VPN, so exactly one of the two lists is used:
+     *  - OFF / EXCLUDE: everything is tunneled except this app and the excluded apps.
+     *  - INCLUDE: only the chosen apps are tunneled. With no valid app chosen the VPN falls back to
+     *    tunneling everything, so an empty list can never silently leave the device unprotected.
+     */
+    private fun VpnService.Builder.applySplitTunnel(
+        mode: SettingsStore.SplitTunnelMode,
+        excludedApps: Set<String>,
+        includedApps: Set<String>,
+    ) {
+        if (mode == SettingsStore.SplitTunnelMode.INCLUDE) {
+            var added = 0
+            for (pkg in includedApps) {
+                if (pkg == packageName) continue
+                runCatching { addAllowedApplication(pkg) }
+                    .onSuccess { added++ }
+                    .onFailure { AppLogger.w(TAG, "failed to include $pkg in the VPN tunnel (app may be uninstalled)", it) }
+            }
+            if (added > 0) {
+                AppLogger.i(TAG, "split tunnel: only $added selected app(s) use the VPN")
+                return
+            }
+            AppLogger.w(TAG, "split tunnel: no valid apps selected, tunneling all apps instead")
+        }
+        runCatching { addDisallowedApplication(packageName) }
+            .onFailure { AppLogger.w(TAG, "failed to exclude own app from the VPN tunnel", it) }
+        if (mode == SettingsStore.SplitTunnelMode.EXCLUDE) {
+            for (excludedPackage in excludedApps) {
+                runCatching { addDisallowedApplication(excludedPackage) }
+                    .onFailure { AppLogger.w(TAG, "failed to exclude $excludedPackage from the VPN tunnel (app may be uninstalled)", it) }
+            }
+            AppLogger.i(TAG, "split tunnel: ${excludedApps.size} app(s) bypass the VPN")
+        }
     }
 
     private fun teardown() {
