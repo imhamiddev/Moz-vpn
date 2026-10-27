@@ -3,9 +3,9 @@ package com.imhamiddev.mozvpn.ui.theme
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-val FoxSeed = Color(0xFF1F5FFF)
+val MozSeed = Color(0xFF6C4DF6)
 
-// Light: white surfaces with a vivid blue accent.
+// Moz Aurora - Light: soft lavender-white surfaces, violet accent, mint for the protected state.
 val md_theme_light_primary = Color(0xFF1F5FFF)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFFDDE6FF)
@@ -49,7 +49,7 @@ val md_theme_light_inverseSurface = Color(0xFF1B2230)
 val md_theme_light_inverseOnSurface = Color(0xFFF1F4FA)
 val md_theme_light_scrim = Color(0xFF000000)
 
-// Dark: black surfaces with a bright blue accent.
+// Moz Aurora - Dark: deep ink surfaces, luminous violet accent, mint for the protected state.
 val md_theme_dark_primary = Color(0xFF5B9BFF)
 val md_theme_dark_onPrimary = Color(0xFF00205C)
 val md_theme_dark_primaryContainer = Color(0xFF0F3AA8)
