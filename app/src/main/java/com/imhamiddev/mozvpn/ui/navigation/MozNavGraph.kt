@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Shield
@@ -34,6 +35,7 @@ import com.imhamiddev.mozvpn.ui.screens.LoginScreen
 import com.imhamiddev.mozvpn.ui.screens.LogsScreen
 import com.imhamiddev.mozvpn.ui.screens.ServerListScreen
 import com.imhamiddev.mozvpn.ui.screens.SettingsScreen
+import com.imhamiddev.mozvpn.ui.screens.SplitTunnelScreen
 import com.imhamiddev.mozvpn.ui.screens.SplashScreen
 import com.imhamiddev.mozvpn.ui.theme.ThemeController
 import com.imhamiddev.mozvpn.vpn.MozVpnService
@@ -43,16 +45,18 @@ object MozRoutes {
     const val LOGIN = "login"
     const val HOME = "home"
     const val SERVERS = "servers"
+    const val APPS = "apps"
     const val SETTINGS = "settings"
     const val LOGS = "logs"
 
     /** Routes that are shown with the bottom navigation bar. */
-    val TABS = setOf(HOME, SERVERS, SETTINGS)
+    val TABS = setOf(HOME, SERVERS, APPS, SETTINGS)
 }
 
 private val MozTabs = listOf(
     MozTab(MozRoutes.HOME, "Home", Icons.Rounded.Shield),
     MozTab(MozRoutes.SERVERS, "Servers", Icons.Rounded.Public),
+    MozTab(MozRoutes.APPS, "Apps", Icons.Rounded.Apps),
     MozTab(MozRoutes.SETTINGS, "Settings", Icons.Rounded.Settings),
 )
 
@@ -143,6 +147,9 @@ fun MozNavGraph(
                 },
                 onBack = { navController.popBackStack() },
             )
+        }
+        composable(MozRoutes.APPS) {
+            SplitTunnelScreen(settingsStore = app.settingsStore)
         }
         composable(MozRoutes.SETTINGS) {
             SettingsScreen(
