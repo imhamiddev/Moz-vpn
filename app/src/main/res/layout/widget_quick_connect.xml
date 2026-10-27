@@ -20,7 +20,7 @@
         android:layout_gravity="center"
         android:scaleType="fitCenter"
         android:padding="16dp"
-        android:src="@android:drawable/ic_lock_lock"
+        android:src="@drawable/ic_vpn_shield"
         android:contentDescription="@string/quick_connect" />
 
 </FrameLayout>
