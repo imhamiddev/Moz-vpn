@@ -1456,7 +1456,7 @@ class FoxyVpnService : VpnService() {
             )
             val text = "The VPN disconnected and your traffic is no longer protected."
             val notification = NotificationCompat.Builder(this, FoxyVpnApp.VPN_ALERT_NOTIFICATION_CHANNEL_ID)
-                .setContentTitle("FoxyVPN disconnected")
+                .setContentTitle("Moz VPN disconnected")
                 .setContentText(text)
                 .setStyle(NotificationCompat.BigTextStyle().bigText("$text\n$reason\nTip: turn on \"Block connections without VPN\" in Android's VPN settings to prevent this."))
                 .setSmallIcon(android.R.drawable.ic_lock_lock)
