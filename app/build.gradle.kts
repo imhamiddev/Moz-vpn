@@ -71,8 +71,8 @@ android {
         applicationId = "com.imhamiddev.mozvpn"
         minSdk = 26
         targetSdk = 35
-        versionCode = 44
-        versionName = "1.0.7"
+        versionCode = 45
+        versionName = "2.0.0"
 
         externalNativeBuild {
             ndkBuild {
