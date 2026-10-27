@@ -19,7 +19,7 @@ import com.vauth.foxyvpn.ui.screens.SplashScreen
 import com.vauth.foxyvpn.ui.theme.ThemeController
 import com.vauth.foxyvpn.vpn.MozVpnService
 
-object FoxyRoutes {
+object MozRoutes {
     const val SPLASH = "splash"
     const val LOGIN = "login"
     const val HOME = "home"
@@ -29,44 +29,44 @@ object FoxyRoutes {
 }
 
 @Composable
-fun FoxyNavGraph(
+fun MozNavGraph(
     navController: NavHostController = rememberNavController(),
     app: MozVpnApp,
     themeController: ThemeController,
     onRequestConnect: () -> Unit,
     onDisconnect: () -> Unit,
 ) {
-    NavHost(navController = navController, startDestination = FoxyRoutes.SPLASH) {
-        composable(FoxyRoutes.SPLASH) {
+    NavHost(navController = navController, startDestination = MozRoutes.SPLASH) {
+        composable(MozRoutes.SPLASH) {
             SplashScreen(
                 authRepository = app.authRepository,
                 onSignedIn = {
-                    navController.navigate(FoxyRoutes.HOME) { popUpTo(FoxyRoutes.SPLASH) { inclusive = true } }
+                    navController.navigate(MozRoutes.HOME) { popUpTo(MozRoutes.SPLASH) { inclusive = true } }
                 },
                 onNeedsLogin = {
-                    navController.navigate(FoxyRoutes.LOGIN) { popUpTo(FoxyRoutes.SPLASH) { inclusive = true } }
+                    navController.navigate(MozRoutes.LOGIN) { popUpTo(MozRoutes.SPLASH) { inclusive = true } }
                 },
             )
         }
-        composable(FoxyRoutes.LOGIN) {
+        composable(MozRoutes.LOGIN) {
             LoginScreen(
                 authRepository = app.authRepository,
                 onSignedIn = {
-                    navController.navigate(FoxyRoutes.HOME) { popUpTo(FoxyRoutes.LOGIN) { inclusive = true } }
+                    navController.navigate(MozRoutes.HOME) { popUpTo(MozRoutes.LOGIN) { inclusive = true } }
                 },
             )
         }
-        composable(FoxyRoutes.HOME) {
+        composable(MozRoutes.HOME) {
             HomeScreen(
                 app = app,
                 themeController = themeController,
                 onRequestConnect = onRequestConnect,
                 onDisconnect = onDisconnect,
-                onOpenServers = { navController.navigate(FoxyRoutes.SERVERS) },
-                onOpenSettings = { navController.navigate(FoxyRoutes.SETTINGS) },
+                onOpenServers = { navController.navigate(MozRoutes.SERVERS) },
+                onOpenSettings = { navController.navigate(MozRoutes.SETTINGS) },
             )
         }
-        composable(FoxyRoutes.SERVERS) {
+        composable(MozRoutes.SERVERS) {
             val context = LocalContext.current
             ServerListScreen(
                 serverListClient = app.serverListClient,
@@ -78,10 +78,10 @@ fun FoxyNavGraph(
                 onBack = { navController.popBackStack() },
             )
         }
-        composable(FoxyRoutes.SETTINGS) {
+        composable(MozRoutes.SETTINGS) {
             SettingsScreen(
                 settingsStore = app.settingsStore,
-                onOpenLogs = { navController.navigate(FoxyRoutes.LOGS) },
+                onOpenLogs = { navController.navigate(MozRoutes.LOGS) },
                 onSignOut = {
                     // Snapshot the tokens first so they can be revoked on the server after the local wipe.
                     val signedOutAuth = runCatching { app.tokenStore.loadAuth() }.getOrNull()
@@ -96,12 +96,12 @@ fun FoxyNavGraph(
                             runCatching { withTimeout(10_000L) { app.authRepository.revokeRemote(signedOutAuth) } }
                         }
                     }
-                    navController.navigate(FoxyRoutes.LOGIN) { popUpTo(0) { inclusive = true } }
+                    navController.navigate(MozRoutes.LOGIN) { popUpTo(0) { inclusive = true } }
                 },
                 onBack = { navController.popBackStack() },
             )
         }
-        composable(FoxyRoutes.LOGS) {
+        composable(MozRoutes.LOGS) {
             LogsScreen(onBack = { navController.popBackStack() })
         }
     }
