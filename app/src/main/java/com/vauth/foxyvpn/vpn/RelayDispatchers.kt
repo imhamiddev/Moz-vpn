@@ -17,7 +17,7 @@ object RelayDispatchers {
     private val threadCounter = AtomicLong(0)
 
     private val threadFactory = ThreadFactory { runnable ->
-        Thread(null, runnable, "foxy-relay-${threadCounter.incrementAndGet()}", RELAY_THREAD_STACK_BYTES).apply {
+        Thread(null, runnable, "moz-relay-${threadCounter.incrementAndGet()}", RELAY_THREAD_STACK_BYTES).apply {
 
             isDaemon = true
             priority = Thread.NORM_PRIORITY
