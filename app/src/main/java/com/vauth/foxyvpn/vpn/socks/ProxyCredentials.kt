@@ -17,7 +17,7 @@ class ProxyCredentials(val username: String, val password: String) {
         /** Fresh random credentials for the app's own TUN <-> SOCKS5 link; never persisted or shown. */
         fun random(): ProxyCredentials {
             val bytes = ByteArray(16).also { SecureRandom().nextBytes(it) }
-            return ProxyCredentials("foxyvpn", bytes.joinToString("") { "%02x".format(it) })
+            return ProxyCredentials("mozvpn", bytes.joinToString("") { "%02x".format(it) })
         }
 
         /** User-configured credentials; null (no authentication) when the username is blank. */
