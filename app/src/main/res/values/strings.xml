@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FoxyVPN</string>
+    <string name="app_name">Moz VPN</string>
     <string name="quick_connect">Quick Connect</string>
     <string name="quick_connect_connected">Connected</string>
     <string name="quick_connect_connecting">Connecting\u2026</string>
