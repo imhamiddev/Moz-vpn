@@ -9,7 +9,7 @@ import com.vauth.foxyvpn.widget.QuickConnectWidgetProvider
 
 class SettingsStore(context: Context) {
     private val appContext = context.applicationContext
-    private val prefs = appContext.getSharedPreferences("foxyvpn_settings", Context.MODE_PRIVATE)
+    private val prefs = appContext.getSharedPreferences("mozvpn_settings", Context.MODE_PRIVATE)
 
     private val credentialsPrefs by lazy {
         val masterKey = MasterKey.Builder(appContext)
@@ -17,7 +17,7 @@ class SettingsStore(context: Context) {
             .build()
         EncryptedSharedPreferences.create(
             appContext,
-            "foxyvpn_settings_credentials",
+            "mozvpn_settings_credentials",
             masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
