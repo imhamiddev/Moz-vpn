@@ -1,13 +1,32 @@
 package com.imhamiddev.mozvpn.ui.navigation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Public
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.imhamiddev.mozvpn.MozVpnApp
 import com.imhamiddev.mozvpn.data.ControlPlaneHttp
+import com.imhamiddev.mozvpn.ui.components.MozBottomBar
+import com.imhamiddev.mozvpn.ui.components.MozTab
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import com.imhamiddev.mozvpn.ui.screens.HomeScreen
@@ -26,6 +45,24 @@ object MozRoutes {
     const val SERVERS = "servers"
     const val SETTINGS = "settings"
     const val LOGS = "logs"
+
+    /** Routes that are shown with the bottom navigation bar. */
+    val TABS = setOf(HOME, SERVERS, SETTINGS)
+}
+
+private val MozTabs = listOf(
+    MozTab(MozRoutes.HOME, "Home", Icons.Rounded.Shield),
+    MozTab(MozRoutes.SERVERS, "Servers", Icons.Rounded.Public),
+    MozTab(MozRoutes.SETTINGS, "Settings", Icons.Rounded.Settings),
+)
+
+/** Switches between top-level tabs while keeping a single Home entry at the bottom of the stack. */
+private fun NavHostController.navigateToTab(route: String) {
+    navigate(route) {
+        popUpTo(MozRoutes.HOME) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
 }
 
 @Composable
@@ -36,7 +73,36 @@ fun MozNavGraph(
     onRequestConnect: () -> Unit,
     onDisconnect: () -> Unit,
 ) {
-    NavHost(navController = navController, startDestination = MozRoutes.SPLASH) {
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+    val showBottomBar = currentRoute in MozRoutes.TABS
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        bottomBar = {
+            AnimatedVisibility(
+                visible = showBottomBar,
+                enter = slideInVertically { it } + fadeIn(),
+                exit = slideOutVertically { it } + fadeOut(),
+            ) {
+                MozBottomBar(
+                    tabs = MozTabs,
+                    currentRoute = currentRoute,
+                    onSelect = { route ->
+                        if (route != currentRoute) navController.navigateToTab(route)
+                    },
+                )
+            }
+        },
+    ) { innerPadding ->
+    NavHost(
+        navController = navController,
+        startDestination = MozRoutes.SPLASH,
+        modifier = Modifier
+            .padding(innerPadding)
+            .consumeWindowInsets(innerPadding),
+    ) {
         composable(MozRoutes.SPLASH) {
             SplashScreen(
                 authRepository = app.authRepository,
@@ -62,8 +128,8 @@ fun MozNavGraph(
                 themeController = themeController,
                 onRequestConnect = onRequestConnect,
                 onDisconnect = onDisconnect,
-                onOpenServers = { navController.navigate(MozRoutes.SERVERS) },
-                onOpenSettings = { navController.navigate(MozRoutes.SETTINGS) },
+                onOpenServers = { navController.navigateToTab(MozRoutes.SERVERS) },
+                onOpenSettings = { navController.navigateToTab(MozRoutes.SETTINGS) },
             )
         }
         composable(MozRoutes.SERVERS) {
@@ -104,5 +170,6 @@ fun MozNavGraph(
         composable(MozRoutes.LOGS) {
             LogsScreen(onBack = { navController.popBackStack() })
         }
+    }
     }
 }
