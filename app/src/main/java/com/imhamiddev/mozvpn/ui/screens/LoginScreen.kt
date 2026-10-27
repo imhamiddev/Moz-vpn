@@ -175,7 +175,7 @@ fun LoginScreen(
                     keyboardActions = KeyboardActions(
                         onNext = { focusManager.moveFocus(FocusDirection.Down) }
                     ),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.padding(top = 12.dp))
@@ -197,7 +197,7 @@ fun LoginScreen(
                             doSubmitLogin()
                         }
                     ),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.padding(top = 20.dp))
@@ -240,7 +240,7 @@ fun LoginScreen(
                             doSubmitTwoFactor()
                         }
                     ),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.padding(top = 20.dp))
