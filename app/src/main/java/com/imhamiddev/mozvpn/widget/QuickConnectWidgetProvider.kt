@@ -121,7 +121,7 @@ class QuickConnectWidgetProvider : AppWidgetProvider() {
             }
 
             views.setImageViewResource(R.id.widget_background, bgRes)
-            views.setImageViewResource(R.id.widget_button, android.R.drawable.ic_lock_lock)
+            views.setImageViewResource(R.id.widget_button, R.drawable.ic_vpn_shield)
             views.setInt(R.id.widget_button, "setColorFilter", iconColor)
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
