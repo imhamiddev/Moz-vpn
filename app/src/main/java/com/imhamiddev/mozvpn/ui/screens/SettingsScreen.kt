@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -37,6 +38,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import com.imhamiddev.mozvpn.ui.components.MozCard
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.MaterialTheme
@@ -301,6 +303,12 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState()),
         ) {
             SectionLabel("Connection")
+            MozCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(vertical = 4.dp),
+            ) {
             MozListItem(
                 headlineContent = { Text("Verify exit location") },
                 supportingContent = { Text("Check that the tunnel exits in the selected country") },
@@ -321,8 +329,15 @@ fun SettingsScreen(
                 modifier = Modifier.clickable { showMtuDialog = true },
             )
 
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            }
+            Spacer(Modifier.height(12.dp))
             SectionLabel("DNS")
+            MozCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(vertical = 4.dp),
+            ) {
             MozListItem(
                 headlineContent = { Text("Tunnel DNS") },
                 supportingContent = {
@@ -350,8 +365,15 @@ fun SettingsScreen(
                 modifier = Modifier.clickable { showBootstrapDnsDialog = true },
             )
 
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            }
+            Spacer(Modifier.height(12.dp))
             SectionLabel("Local proxy")
+            MozCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(vertical = 4.dp),
+            ) {
             MozListItem(
                 headlineContent = { Text("Proxy-only mode") },
                 supportingContent = { Text("Run local proxy servers (SOCKS5 & HTTP), without a VPN interface") },
@@ -414,8 +436,15 @@ fun SettingsScreen(
                 )
             }
 
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            }
+            Spacer(Modifier.height(12.dp))
             SectionLabel("Split tunneling")
+            MozCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(vertical = 4.dp),
+            ) {
             MozListItem(
                 headlineContent = { Text("Excluded apps") },
                 supportingContent = {
@@ -431,8 +460,15 @@ fun SettingsScreen(
                 modifier = Modifier.clickable { showSplitTunnelDialog = true },
             )
 
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            }
+            Spacer(Modifier.height(12.dp))
             SectionLabel("Advanced")
+            MozCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(vertical = 4.dp),
+            ) {
             MozListItem(
                 headlineContent = { Text("Custom edge address") },
                 supportingContent = { Text(customEdgeAddress.ifBlank { "Not set" }) },
@@ -489,8 +525,15 @@ fun SettingsScreen(
                 )
             }
 
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            }
+            Spacer(Modifier.height(12.dp))
             SectionLabel("About")
+            MozCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(vertical = 4.dp),
+            ) {
             MozListItem(
                 headlineContent = { Text("View logs") },
                 supportingContent = { Text("Recent connection activity") },
@@ -510,7 +553,8 @@ fun SettingsScreen(
                 },
             )
 
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            }
+            Spacer(Modifier.height(16.dp))
             Button(
                 onClick = onSignOut,
                 colors = ButtonDefaults.buttonColors(
@@ -525,6 +569,7 @@ fun SettingsScreen(
                 Spacer(Modifier.width(8.dp))
                 Text("Sign out")
             }
+            Spacer(Modifier.height(24.dp))
         }
     }
 }
