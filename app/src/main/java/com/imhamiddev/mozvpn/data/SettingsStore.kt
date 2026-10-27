@@ -204,6 +204,28 @@ class SettingsStore(context: Context) {
             prefs.edit().putStringSet(KEY_EXCLUDED_APPS, HashSet(value)).apply()
         }
 
+    /**
+     * How the per-app split tunnel behaves.
+     *  - [SplitTunnelMode.OFF]: every app goes through the VPN.
+     *  - [SplitTunnelMode.EXCLUDE]: the apps in [excludedApps] bypass the VPN, everything else uses it.
+     *  - [SplitTunnelMode.INCLUDE]: only the apps in [includedApps] use the VPN, everything else bypasses it.
+     */
+    enum class SplitTunnelMode { OFF, EXCLUDE, INCLUDE }
+
+    var splitTunnelMode: SplitTunnelMode
+        get() {
+            val stored = prefs.getString(KEY_SPLIT_TUNNEL_MODE, null)
+            val parsed = SplitTunnelMode.entries.firstOrNull { it.name == stored }
+            // Upgrade path: users who already had an exclusion list keep it active.
+            return parsed ?: if (excludedApps.isNotEmpty()) SplitTunnelMode.EXCLUDE else SplitTunnelMode.OFF
+        }
+        set(value) { prefs.edit().putString(KEY_SPLIT_TUNNEL_MODE, value.name).apply() }
+
+    /** Apps that are the only ones tunneled while [splitTunnelMode] is [SplitTunnelMode.INCLUDE]. */
+    var includedApps: Set<String>
+        get() = prefs.getStringSet(KEY_INCLUDED_APPS, emptySet())?.toSet() ?: emptySet()
+        set(value) { prefs.edit().putStringSet(KEY_INCLUDED_APPS, HashSet(value)).apply() }
+
     var tlsSplitMode: TlsSplitMode
         get() = TlsSplitMode.entries.firstOrNull {
             it.name == prefs.getString(KEY_TLS_SPLIT_MODE, null)
@@ -334,6 +356,8 @@ class SettingsStore(context: Context) {
         private const val KEY_LOCAL_PROXY_USERNAME = "local_proxy_username"
         private const val KEY_LOCAL_PROXY_PASSWORD = "local_proxy_password"
         private const val KEY_EXCLUDED_APPS = "excluded_apps"
+        private const val KEY_INCLUDED_APPS = "included_apps"
+        private const val KEY_SPLIT_TUNNEL_MODE = "split_tunnel_mode"
         private const val KEY_TLS_SPLIT_MODE = "tls_split_mode"
         const val DEFAULT_SOCKS_BIND_ADDRESS = "127.0.0.1"
         // Ports below 1024 are privileged (a non-root app cannot bind them), so they are never valid here.
