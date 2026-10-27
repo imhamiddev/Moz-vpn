@@ -140,7 +140,7 @@ fun MozVpnTheme(
     }
 
     CompositionLocalProvider(
-        LocalFoxyStatusColors provides if (darkTheme) DarkStatusColors else LightStatusColors,
+        LocalMozStatusColors provides if (darkTheme) DarkStatusColors else LightStatusColors,
         LocalLayoutDirection provides LayoutDirection.Ltr,
     ) {
         MaterialExpressiveTheme(

@@ -81,7 +81,7 @@ import com.vauth.foxyvpn.data.ServerListClient
 import com.vauth.foxyvpn.data.formatBytes
 import com.vauth.foxyvpn.data.model.ConnectionState
 import com.vauth.foxyvpn.data.model.emojiFlag
-import com.vauth.foxyvpn.ui.theme.LocalFoxyStatusColors
+import com.vauth.foxyvpn.ui.theme.LocalMozStatusColors
 import com.vauth.foxyvpn.ui.theme.ThemeController
 import com.vauth.foxyvpn.ui.theme.ThemeMode
 import com.vauth.foxyvpn.vpn.ExitCheck
@@ -114,7 +114,7 @@ fun HomeScreen(
 
     val selectedProxy by app.proxyStateStore.selectedProxyFlow.collectAsState()
 
-    val statusColors = LocalFoxyStatusColors.current
+    val statusColors = LocalMozStatusColors.current
     val targetRingColor = when (state) {
         ConnectionState.CONNECTED -> statusColors.connected
         ConnectionState.CONNECTING -> statusColors.connecting

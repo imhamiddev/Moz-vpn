@@ -93,22 +93,22 @@ val md_theme_dark_inverseSurface = Color(0xFFE8EDF7)
 val md_theme_dark_inverseOnSurface = Color(0xFF1B2230)
 val md_theme_dark_scrim = Color(0xFF000000)
 
-data class FoxyStatusColors(
+data class MozStatusColors(
     val connected: Color,
     val connecting: Color,
     val disconnected: Color,
 )
 
-val LightStatusColors = FoxyStatusColors(
+val LightStatusColors = MozStatusColors(
     connected = Color(0xFF1F5FFF),
     connecting = Color(0xFFB26A00),
     disconnected = md_theme_light_onSurfaceVariant,
 )
 
-val DarkStatusColors = FoxyStatusColors(
+val DarkStatusColors = MozStatusColors(
     connected = Color(0xFF5B9BFF),
     connecting = Color(0xFFFFC46B),
     disconnected = md_theme_dark_onSurfaceVariant,
 )
 
-val LocalFoxyStatusColors = staticCompositionLocalOf { LightStatusColors }
+val LocalMozStatusColors = staticCompositionLocalOf { LightStatusColors }
