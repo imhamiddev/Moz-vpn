@@ -30,7 +30,7 @@ class QuickConnectWidgetProvider : AppWidgetProvider() {
     // act on ACTION_TOGGLE_VPN; taps are delivered to the non-exported WidgetToggleReceiver instead.
 
     companion object {
-        const val ACTION_TOGGLE_VPN = "com.vauth.foxyvpn.action.TOGGLE_VPN"
+        const val ACTION_TOGGLE_VPN = "com.imhamiddev.mozvpn.action.TOGGLE_VPN"
 
         fun toggleVpn(context: Context) {
             when (MozVpnService.state.value) {

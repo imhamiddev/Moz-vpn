@@ -1490,9 +1490,9 @@ class MozVpnService : VpnService() {
     }
 
     companion object {
-        const val ACTION_CONNECT = "com.vauth.foxyvpn.action.CONNECT"
-        const val ACTION_DISCONNECT = "com.vauth.foxyvpn.action.DISCONNECT"
-        const val ACTION_RECONNECT = "com.vauth.foxyvpn.action.RECONNECT"
+        const val ACTION_CONNECT = "com.imhamiddev.mozvpn.action.CONNECT"
+        const val ACTION_DISCONNECT = "com.imhamiddev.mozvpn.action.DISCONNECT"
+        const val ACTION_RECONNECT = "com.imhamiddev.mozvpn.action.RECONNECT"
         private const val NOTIFICATION_ID = 1
         private const val ALERT_NOTIFICATION_ID = 2
         private const val REQUEST_CODE_VPN_SETTINGS = 3
