@@ -2,6 +2,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
     <size android:width="72dp" android:height="72dp" />
-    <solid android:color="#3D363B" />
-    <stroke android:width="2dp" android:color="#FFC46B" android:dashWidth="6dp" android:dashGap="4dp" />
+    <solid android:color="#1D1D2F" />
+    <stroke android:width="2dp" android:color="#FFC857" android:dashWidth="6dp" android:dashGap="4dp" />
 </shape>
