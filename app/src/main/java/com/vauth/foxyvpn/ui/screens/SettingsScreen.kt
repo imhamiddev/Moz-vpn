@@ -61,7 +61,7 @@ import com.vauth.foxyvpn.data.SettingsStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-private const val GITHUB_URL = "https://github.com/vauth/foxyvpn"
+private const val GITHUB_URL = "https://github.com/imhamiddev/Moz-vpn"
 
 @Composable
 fun SettingsScreen(
