@@ -37,6 +37,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -299,7 +301,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState()),
         ) {
             SectionLabel("Connection")
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Verify exit location") },
                 supportingContent = { Text("Check that the tunnel exits in the selected country") },
                 trailingContent = {
@@ -312,7 +314,7 @@ fun SettingsScreen(
                     )
                 },
             )
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Tunnel MTU") },
                 supportingContent = { Text(mtu.toString()) },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
@@ -321,7 +323,7 @@ fun SettingsScreen(
 
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             SectionLabel("DNS")
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Tunnel DNS") },
                 supportingContent = {
                     val subtitle = when (dnsProvider) {
@@ -334,7 +336,7 @@ fun SettingsScreen(
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                 modifier = Modifier.clickable { showDnsProviderDialog = true },
             )
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Resolver DNS") },
                 supportingContent = {
                     val subtitle = when (bootstrapDnsProvider) {
@@ -350,7 +352,7 @@ fun SettingsScreen(
 
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             SectionLabel("Local proxy")
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Proxy-only mode") },
                 supportingContent = { Text("Run local proxy servers (SOCKS5 & HTTP), without a VPN interface") },
                 trailingContent = {
@@ -363,13 +365,13 @@ fun SettingsScreen(
                     )
                 },
             )
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Local address") },
                 supportingContent = { Text(socksBindAddress) },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                 modifier = Modifier.clickable { showSocksBindDialog = true },
             )
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Local proxy login") },
                 supportingContent = {
                     Text(
@@ -384,13 +386,13 @@ fun SettingsScreen(
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                 modifier = Modifier.clickable { showLocalProxyCredentialsDialog = true },
             )
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("SOCKS5 port") },
                 supportingContent = { Text(socksPort.toString()) },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                 modifier = Modifier.clickable { showSocksPortDialog = true },
             )
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Enable HTTP proxy") },
                 supportingContent = { Text("Run local HTTP proxy alongside SOCKS5") },
                 trailingContent = {
@@ -404,7 +406,7 @@ fun SettingsScreen(
                 },
             )
             if (httpProxyEnabled) {
-                ListItem(
+                MozListItem(
                     headlineContent = { Text("HTTP port") },
                     supportingContent = { Text(httpProxyPort.toString()) },
                     trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
@@ -414,7 +416,7 @@ fun SettingsScreen(
 
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             SectionLabel("Split tunneling")
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Excluded apps") },
                 supportingContent = {
                     Text(
@@ -431,19 +433,19 @@ fun SettingsScreen(
 
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             SectionLabel("Advanced")
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Custom edge address") },
                 supportingContent = { Text(customEdgeAddress.ifBlank { "Not set" }) },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                 modifier = Modifier.clickable { showEdgeAddressDialog = true },
             )
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("TLS fragmentation") },
                 supportingContent = { Text(tlsSplitMode.label) },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                 modifier = Modifier.clickable { showTlsSplitDialog = true },
             )
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Chain through upstream proxy") },
                 supportingContent = { Text("Connect to the VPN server through another proxy first") },
                 trailingContent = {
@@ -457,13 +459,13 @@ fun SettingsScreen(
                 },
             )
             if (upstreamProxyEnabled) {
-                ListItem(
+                MozListItem(
                     headlineContent = { Text("Proxy type") },
                     supportingContent = { Text(upstreamProxyType.name) },
                     trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                     modifier = Modifier.clickable { showUpstreamProxyTypeDialog = true },
                 )
-                ListItem(
+                MozListItem(
                     headlineContent = { Text("Proxy address") },
                     supportingContent = {
                         Text(
@@ -477,7 +479,7 @@ fun SettingsScreen(
                     trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                     modifier = Modifier.clickable { showUpstreamProxyAddressDialog = true },
                 )
-                ListItem(
+                MozListItem(
                     headlineContent = { Text("Proxy credentials") },
                     supportingContent = {
                         Text(if (upstreamProxyUsername.isBlank()) "None" else upstreamProxyUsername)
@@ -489,17 +491,17 @@ fun SettingsScreen(
 
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             SectionLabel("About")
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("View logs") },
                 supportingContent = { Text("Recent connection activity") },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                 modifier = Modifier.clickable(onClick = onOpenLogs),
             )
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Version") },
                 supportingContent = { Text(BuildConfig.VERSION_NAME) },
             )
-            ListItem(
+            MozListItem(
                 headlineContent = { Text("Source code") },
                 supportingContent = { Text(GITHUB_URL) },
                 leadingContent = { Icon(Icons.Filled.Code, contentDescription = null) },
@@ -1171,5 +1173,24 @@ private fun MtuPickerDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
         },
+    )
+}
+
+/** [ListItem] without its own background, so rows can sit on a [MozCard]. */
+@Composable
+private fun MozListItem(
+    headlineContent: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    supportingContent: (@Composable () -> Unit)? = null,
+    leadingContent: (@Composable () -> Unit)? = null,
+    trailingContent: (@Composable () -> Unit)? = null,
+) {
+    ListItem(
+        headlineContent = headlineContent,
+        modifier = modifier,
+        supportingContent = supportingContent,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
     )
 }
