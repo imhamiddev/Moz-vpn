@@ -87,7 +87,7 @@ class FoxyVpnApp : Application() {
     }
 
     companion object {
-        const val VPN_NOTIFICATION_CHANNEL_ID = "foxyvpn_status"
-        const val VPN_ALERT_NOTIFICATION_CHANNEL_ID = "foxyvpn_alerts"
+        const val VPN_NOTIFICATION_CHANNEL_ID = "mozvpn_status"
+        const val VPN_ALERT_NOTIFICATION_CHANNEL_ID = "mozvpn_alerts"
     }
 }
