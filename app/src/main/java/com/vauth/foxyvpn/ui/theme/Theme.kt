@@ -108,7 +108,7 @@ private val FoxyShapes = Shapes(
 )
 
 @Composable
-fun FoxyVpnTheme(
+fun MozVpnTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,

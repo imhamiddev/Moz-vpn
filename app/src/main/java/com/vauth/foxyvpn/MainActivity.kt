@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.vauth.foxyvpn.ui.navigation.FoxyNavGraph
-import com.vauth.foxyvpn.ui.theme.FoxyVpnTheme
+import com.vauth.foxyvpn.ui.theme.MozVpnTheme
 import com.vauth.foxyvpn.ui.theme.rememberThemeController
 import com.vauth.foxyvpn.vpn.MozVpnService
 
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             val themeController = rememberThemeController(app.settingsStore)
-            FoxyVpnTheme(themeMode = themeController.mode) {
+            MozVpnTheme(themeMode = themeController.mode) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     val navController = rememberNavController()
                     FoxyNavGraph(
