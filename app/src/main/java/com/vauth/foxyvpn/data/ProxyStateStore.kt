@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class ProxyStateStore(context: Context) {
-    private val prefs = context.getSharedPreferences("foxyvpn_proxy_state", Context.MODE_PRIVATE)
+    private val prefs = context.getSharedPreferences("mozvpn_proxy_state", Context.MODE_PRIVATE)
 
     private val _selectedProxyFlow = MutableStateFlow<ProxyCandidate?>(load())
     val selectedProxyFlow: StateFlow<ProxyCandidate?> = _selectedProxyFlow
