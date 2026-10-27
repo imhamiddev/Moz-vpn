@@ -11,7 +11,8 @@ device's traffic through the selected server using a local SOCKS5/HTTP proxy bri
 - Server list with live latency and a "Recommended" fastest server
 - Network handover with make-before-break reconnect
 - Light, dark and system themes
-- Split tunneling (choose which apps use the VPN) - see the changelog
+- Per-app split tunneling: bypass selected apps, or tunnel only selected apps
+- New "Moz Aurora" design system with a floating bottom navigation bar
 
 ## Build
 
