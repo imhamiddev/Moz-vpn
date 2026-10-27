@@ -88,7 +88,7 @@ class TokenStore(context: Context) {
     }
 
     companion object {
-        private const val PREFS_NAME = "foxyvpn_tokens"
+        private const val PREFS_NAME = "mozvpn_tokens"
         private const val KEY_ACCESS_TOKEN = "access_token"
         private const val KEY_REFRESH_TOKEN = "refresh_token"
         private const val KEY_EXPIRES_AT = "expires_at"
