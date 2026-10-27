@@ -269,7 +269,7 @@ class H2UpstreamSession(
         val handshakeDone = CompletableDeferred<Unit>()
         val bootstrap = Bootstrap()
             .group(group)
-            .channel(FoxyNioSocketChannel::class.java)
+            .channel(MozNioSocketChannel::class.java)
             .apply {
                 if (upstreamProxy != null) resolver(NoopAddressResolverGroup.INSTANCE)
             }
@@ -279,8 +279,8 @@ class H2UpstreamSession(
             .option(ChannelOption.SO_KEEPALIVE, true)
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TCP_CONNECT_TIMEOUT_MS)
             .option(ChannelOption.WRITE_BUFFER_WATER_MARK, PARENT_WRITE_WATER_MARK)
-            .handler(object : ChannelInitializer<FoxyNioSocketChannel>() {
-                override fun initChannel(ch: FoxyNioSocketChannel) {
+            .handler(object : ChannelInitializer<MozNioSocketChannel>() {
+                override fun initChannel(ch: MozNioSocketChannel) {
                     runCatching {
                         com.vauth.foxyvpn.data.ControlPlaneHttp.socketProtector?.invoke(ch.publicJavaChannel().socket())
                     }.onFailure {
@@ -831,7 +831,7 @@ private suspend fun ChannelFuture.awaitChannel(): Channel =
     }
 
 @androidx.annotation.Keep
-internal class FoxyNioSocketChannel : io.netty.channel.socket.nio.NioSocketChannel() {
+internal class MozNioSocketChannel : io.netty.channel.socket.nio.NioSocketChannel() {
     fun publicJavaChannel(): java.nio.channels.SocketChannel = super.javaChannel() as java.nio.channels.SocketChannel
 }
 
