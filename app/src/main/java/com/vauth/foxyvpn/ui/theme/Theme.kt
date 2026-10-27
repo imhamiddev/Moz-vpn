@@ -99,7 +99,7 @@ private val DarkColors = darkColorScheme(
     scrim = md_theme_dark_scrim,
 )
 
-private val FoxyShapes = Shapes(
+private val MozShapes = Shapes(
     extraSmall = RoundedCornerShape(8.dp),
     small = RoundedCornerShape(12.dp),
     medium = RoundedCornerShape(16.dp),
@@ -146,7 +146,7 @@ fun MozVpnTheme(
         MaterialExpressiveTheme(
             colorScheme = colorScheme,
             typography = MozTypography,
-            shapes = FoxyShapes,
+            shapes = MozShapes,
             motionScheme = MotionScheme.expressive(),
             content = content,
         )
