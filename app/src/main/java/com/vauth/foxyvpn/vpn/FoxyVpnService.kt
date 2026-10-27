@@ -1545,7 +1545,7 @@ class FoxyVpnService : VpnService() {
                 true
             } catch (failure: Exception) {
                 AppLogger.e(TAG, "could not start the VPN service", failure)
-                _lastError.value = "Android did not allow FoxyVPN to start in the background. Open the app and try again."
+                _lastError.value = "Android did not allow Moz VPN to start in the background. Open the app and try again."
                 false
             }
         }
