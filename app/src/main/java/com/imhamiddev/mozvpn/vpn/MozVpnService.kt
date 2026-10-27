@@ -16,6 +16,7 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.core.app.NotificationCompat
 import com.imhamiddev.mozvpn.MozVpnApp
+import com.imhamiddev.mozvpn.R
 import com.imhamiddev.mozvpn.MainActivity
 import com.imhamiddev.mozvpn.data.AppLogger
 import com.imhamiddev.mozvpn.data.ControlPlaneHttp
@@ -1408,7 +1409,7 @@ class MozVpnService : VpnService() {
         val builder = NotificationCompat.Builder(this, MozVpnApp.VPN_NOTIFICATION_CHANNEL_ID)
             .setContentTitle("Moz VPN")
             .setContentText(text)
-            .setSmallIcon(android.R.drawable.ic_lock_lock)
+            .setSmallIcon(R.drawable.ic_vpn_shield)
             .setContentIntent(openIntent)
             .setOngoing(true)
 
@@ -1459,7 +1460,7 @@ class MozVpnService : VpnService() {
                 .setContentTitle("Moz VPN disconnected")
                 .setContentText(text)
                 .setStyle(NotificationCompat.BigTextStyle().bigText("$text\n$reason\nTip: turn on \"Block connections without VPN\" in Android's VPN settings to prevent this."))
-                .setSmallIcon(android.R.drawable.ic_lock_lock)
+                .setSmallIcon(R.drawable.ic_vpn_shield)
                 .setContentIntent(openIntent)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
