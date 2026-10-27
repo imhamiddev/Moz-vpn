@@ -136,7 +136,7 @@ fun LoginScreen(
             )
             Spacer(Modifier.padding(top = 8.dp))
             Text(
-                "FoxyVPN runs on the free 50 GB of monthly VPN traffic Mozilla includes with a Firefox account. No subscription is required.",
+                "Moz VPN runs on the free 50 GB of monthly VPN traffic Mozilla includes with a Firefox account. No subscription is required.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
