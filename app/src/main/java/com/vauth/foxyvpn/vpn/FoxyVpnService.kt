@@ -1406,7 +1406,7 @@ class FoxyVpnService : VpnService() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         val builder = NotificationCompat.Builder(this, FoxyVpnApp.VPN_NOTIFICATION_CHANNEL_ID)
-            .setContentTitle("FoxyVPN")
+            .setContentTitle("Moz VPN")
             .setContentText(text)
             .setSmallIcon(android.R.drawable.ic_lock_lock)
             .setContentIntent(openIntent)
