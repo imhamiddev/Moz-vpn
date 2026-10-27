@@ -145,7 +145,7 @@ fun MozVpnTheme(
     ) {
         MaterialExpressiveTheme(
             colorScheme = colorScheme,
-            typography = FoxyTypography,
+            typography = MozTypography,
             shapes = FoxyShapes,
             motionScheme = MotionScheme.expressive(),
             content = content,
