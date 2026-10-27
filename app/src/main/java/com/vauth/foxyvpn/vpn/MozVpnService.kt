@@ -114,8 +114,8 @@ private const val SPEED_UPDATE_INTERVAL_SCREEN_OFF_MS = 10_000L
 private const val TUN_ADDRESS_IPV6 = "fd00:1:fd00:1:fd00:1:fd00:1"
 private const val TUN_PREFIX_LENGTH_IPV6 = 128
 
-private const val WAKE_LOCK_TAG = "com.vauth.foxyvpn:vpn"
-private const val WIFI_LOCK_TAG = "com.vauth.foxyvpn:vpn-wifi"
+private const val WAKE_LOCK_TAG = "com.imhamiddev.mozvpn:vpn"
+private const val WIFI_LOCK_TAG = "com.imhamiddev.mozvpn:vpn-wifi"
 
 /** Extra wait requested by the server's Retry-After on a 429, capped so we never stall for long. */
 private fun rateLimitHintMs(error: Throwable?): Long {
