@@ -100,14 +100,14 @@ data class MozStatusColors(
 )
 
 val LightStatusColors = MozStatusColors(
-    connected = Color(0xFF1F5FFF),
-    connecting = Color(0xFFB26A00),
+    connected = Color(0xFF00907B),
+    connecting = Color(0xFFC77700),
     disconnected = md_theme_light_onSurfaceVariant,
 )
 
 val DarkStatusColors = MozStatusColors(
-    connected = Color(0xFF5B9BFF),
-    connecting = Color(0xFFFFC46B),
+    connected = Color(0xFF3EE6C5),
+    connecting = Color(0xFFFFC857),
     disconnected = md_theme_dark_onSurfaceVariant,
 )
 
