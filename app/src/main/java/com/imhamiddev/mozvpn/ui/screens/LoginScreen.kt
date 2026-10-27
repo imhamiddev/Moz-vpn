@@ -148,12 +148,12 @@ fun LoginScreen(
             }
             Spacer(Modifier.padding(top = 20.dp))
             Text(
-                "Sign in with Firefox",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                "Welcome to Moz VPN",
+                style = MaterialTheme.typography.headlineLarge,
             )
             Spacer(Modifier.padding(top = 8.dp))
             Text(
-                "Moz VPN runs on the free 50 GB of monthly VPN traffic Mozilla includes with a Firefox account. No subscription is required.",
+                "Sign in with your Firefox account. Moz VPN uses the free 50 GB of monthly VPN traffic Mozilla includes with it. No subscription is required.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
