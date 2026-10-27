@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
 
             Toast.makeText(
                 this,
-                "FoxyVPN needs Android's VPN permission to tunnel this device's traffic. " +
+                "Moz VPN needs Android's VPN permission to tunnel this device's traffic. " +
                     "Proxy-only mode in Settings works without it.",
                 Toast.LENGTH_LONG,
             ).show()
