@@ -66,7 +66,7 @@ fun SplashScreen(
             }
             Spacer(Modifier.height(20.dp))
             Text(
-                "FoxyVPN",
+                "Moz VPN",
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
