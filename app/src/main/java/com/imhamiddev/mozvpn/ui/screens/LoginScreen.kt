@@ -207,8 +207,8 @@ fun LoginScreen(
                         doSubmitLogin()
                     },
                     enabled = !isLoading && email.isNotBlank() && password.isNotBlank(),
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(
@@ -250,8 +250,8 @@ fun LoginScreen(
                         doSubmitTwoFactor()
                     },
                     enabled = !isLoading && code.isNotBlank(),
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(
