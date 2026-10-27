@@ -62,13 +62,13 @@ val hasReleaseSigning = releaseKeystoreFile.exists() &&
     !releaseStorePassword.isNullOrBlank()
 
 android {
-    namespace = "com.vauth.foxyvpn"
+    namespace = "com.imhamiddev.mozvpn"
     compileSdk = 35
 
     ndkVersion = "26.1.10909125"
 
     defaultConfig {
-        applicationId = "com.vauth.foxyvpn"
+        applicationId = "com.imhamiddev.mozvpn"
         minSdk = 26
         targetSdk = 35
         versionCode = 44
@@ -81,7 +81,7 @@ android {
 
                     "APP_PLATFORM=android-26",
 
-                    "APP_CFLAGS=-DPKGNAME=com/vauth/foxyvpn/vpn/tun -DCLSNAME=HevSocks5Tunnel",
+                    "APP_CFLAGS=-DPKGNAME=com/imhamiddev/mozvpn/vpn/tun -DCLSNAME=HevSocks5Tunnel",
                 )
             }
         }

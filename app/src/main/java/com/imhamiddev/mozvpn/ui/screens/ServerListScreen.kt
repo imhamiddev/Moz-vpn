@@ -1,0 +1,280 @@
+package com.imhamiddev.mozvpn.ui.screens
+
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.imhamiddev.mozvpn.data.ProxyStateStore
+import com.imhamiddev.mozvpn.data.RECOMMENDED_COUNTRY_CODE
+import com.imhamiddev.mozvpn.data.ServerListClient
+import com.imhamiddev.mozvpn.data.model.ProxyCandidate
+import com.imhamiddev.mozvpn.data.model.VpnCountry
+import com.imhamiddev.mozvpn.data.model.emojiFlag
+import com.imhamiddev.mozvpn.vpn.PingUtil
+import com.imhamiddev.mozvpn.vpn.ServerPicker
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+private sealed class LocationRow {
+    data class RecommendedRow(val country: VpnCountry) : LocationRow()
+    data class CountryHeader(val country: VpnCountry) : LocationRow()
+    data class CityRow(val country: VpnCountry, val cityIndex: Int) : LocationRow()
+}
+
+private enum class PingState { PENDING, DONE, FAILED }
+
+@Composable
+fun ServerListScreen(
+    serverListClient: ServerListClient,
+    proxyStateStore: ProxyStateStore,
+    onServerSelected: (locationChanged: Boolean) -> Unit,
+    onBack: () -> Unit,
+) {
+    var countries by remember { mutableStateOf<List<VpnCountry>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val selectedState by proxyStateStore.selectedProxyFlow.collectAsState()
+
+    val pingResults = remember { mutableStateMapOf<String, Int>() }
+    val pingStates = remember { mutableStateMapOf<String, PingState>() }
+    var choosingFastest by remember { mutableStateOf(false) }
+    val pickScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        val cached = withContext(Dispatchers.IO) { serverListClient.loadCachedCountries() }
+        if (cached.isNotEmpty()) {
+            countries = cached
+            isLoading = false
+        }
+        runCatching { serverListClient.fetchCountries() }
+            .onSuccess { fresh ->
+                countries = fresh
+                errorMessage = null
+            }
+            .onFailure {
+                if (countries.isEmpty()) {
+                    errorMessage = it.message ?: "Failed to load server list"
+                }
+            }
+        isLoading = false
+    }
+
+    val ordered = remember(countries) {
+        countries.sortedWith(compareBy({ it.code != RECOMMENDED_COUNTRY_CODE }, { it.name }))
+    }
+
+    val rows = remember(ordered) {
+        buildList {
+            for (country in ordered) {
+                if (country.code == RECOMMENDED_COUNTRY_CODE) {
+                    add(LocationRow.RecommendedRow(country))
+                    continue
+                }
+                add(LocationRow.CountryHeader(country))
+                country.cities.indices.forEach { index -> add(LocationRow.CityRow(country, index)) }
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Choose location") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        Box(Modifier.fillMaxSize().padding(padding)) {
+            when {
+                isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                errorMessage != null && countries.isEmpty() -> Text(
+                    text = errorMessage.orEmpty(),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                )
+                else -> LazyColumn {
+                    items(
+                        rows,
+                        key = { row ->
+                            when (row) {
+                                is LocationRow.RecommendedRow -> "recommended:${row.country.code}"
+                                is LocationRow.CountryHeader -> "country:${row.country.code}"
+                                is LocationRow.CityRow ->
+                                    "city:${row.country.code}:${row.country.cities[row.cityIndex].code}"
+                            }
+                        },
+                    ) { row ->
+
+                        val selected = selectedState
+                        when (row) {
+                            is LocationRow.RecommendedRow -> ListItem(
+                                leadingContent = {
+                                    Icon(Icons.Filled.Public, contentDescription = null)
+                                },
+                                headlineContent = { Text("Recommended", fontWeight = FontWeight.SemiBold) },
+                                supportingContent = {
+                                    Text(
+                                        if (choosingFastest) "Finding the fastest server\u2026"
+                                        else "Automatically chosen for the best performance",
+                                    )
+                                },
+                                trailingContent = {
+                                    if (row.country.code == selected?.countryCode) {
+                                        Icon(Icons.Filled.CheckCircle, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
+                                    }
+                                },
+                                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                                modifier = Modifier
+                                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                                    .clip(RoundedCornerShape(18.dp))
+                                    .clickable(enabled = !choosingFastest) {
+                                        val candidates = ServerListClient.candidatesForCountry(countries, row.country.code)
+                                        if (candidates.isEmpty()) {
+                                            errorMessage = "No available servers for ${row.country.name}"
+                                            return@clickable
+                                        }
+                                        choosingFastest = true
+                                        pickScope.launch {
+                                            val chosen = try {
+                                                ServerPicker.pickLowestLatency(candidates)
+                                            } finally {
+                                                choosingFastest = false
+                                            }
+                                            if (chosen != null) {
+                                                val changed = selected?.countryCode != chosen.countryCode
+                                                proxyStateStore.save(chosen)
+                                                onServerSelected(changed)
+                                            } else {
+                                                errorMessage = "No available servers for ${row.country.name}"
+                                            }
+                                        }
+                                    },
+                            )
+                            is LocationRow.CountryHeader -> ListItem(
+                                leadingContent = {
+                                    Text(
+                                        text = row.country.emojiFlag,
+                                        style = MaterialTheme.typography.titleLarge,
+                                    )
+                                },
+                                headlineContent = { Text(row.country.name, fontWeight = FontWeight.SemiBold) },
+                                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                                modifier = Modifier.padding(horizontal = 12.dp),
+                            )
+                            is LocationRow.CityRow -> {
+                                val city = row.country.cities[row.cityIndex]
+                                val serverCount = city.servers.size
+
+                                val pingKey = "${row.country.code}:${city.code}"
+                                val pingMs = pingResults[pingKey]
+                                val pingState = pingStates[pingKey] ?: PingState.PENDING
+
+                                LaunchedEffect(pingKey) {
+                                    if (pingStates.containsKey(pingKey)) return@LaunchedEffect
+                                    val target = city.servers.firstOrNull { !it.quarantined }
+                                        ?.let { ServerListClient.defaultConnectTarget(it) }
+                                    if (target == null) {
+                                        pingStates[pingKey] = PingState.FAILED
+                                        return@LaunchedEffect
+                                    }
+                                    val result = PingUtil.measureTcpLatencyMs(target.first, target.second)
+                                    if (result != null) {
+                                        pingResults[pingKey] = result
+                                        pingStates[pingKey] = PingState.DONE
+                                    } else {
+                                        pingStates[pingKey] = PingState.FAILED
+                                    }
+                                }
+
+                                ListItem(
+
+                                    headlineContent = { Text(city.name.ifBlank { city.code }) },
+                                    supportingContent = {
+                                        val primaryHostname = city.servers.firstOrNull()?.hostname
+                                        val serverLabel = when {
+                                            primaryHostname == null -> "No servers available"
+                                            serverCount > 1 -> "$primaryHostname (+${serverCount - 1} more)"
+                                            else -> primaryHostname
+                                        }
+                                        val pingLabel = when {
+                                            pingMs != null -> "$pingMs ms"
+                                            pingState == PingState.FAILED -> "ping unavailable"
+                                            else -> "pinging\u2026"
+                                        }
+                                        Text("$serverLabel \u2022 $pingLabel")
+                                    },
+                                    trailingContent = {
+                                        if (row.country.code == selected?.countryCode &&
+                                            city.code == selected?.cityCode
+                                        ) {
+                                            Icon(Icons.Filled.CheckCircle, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
+                                        }
+                                    },
+                                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                                    modifier = Modifier
+                                        .padding(start = 28.dp, end = 12.dp, top = 3.dp, bottom = 3.dp)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .clickable {
+                                            val candidates = ServerListClient.candidatesForCity(countries, row.country.code, city.code)
+                                            val chosen = candidates.randomOrNull()
+                                            if (chosen != null) {
+                                                val changed = selected?.countryCode != chosen.countryCode ||
+                                                    selected?.cityCode != chosen.cityCode
+                                                proxyStateStore.save(chosen)
+                                                onServerSelected(changed)
+                                            } else {
+                                                errorMessage = "No available servers in ${city.name.ifBlank { city.code }}"
+                                            }
+                                        },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

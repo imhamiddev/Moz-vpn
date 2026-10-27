@@ -1,8 +1,8 @@
 -dontwarn io.netty.**
 -keep class io.netty.** { *; }
 
--keep class com.vauth.foxyvpn.vpn.tun.HevSocks5Tunnel { *; }
--keepnames class com.vauth.foxyvpn.vpn.tun.HevSocks5Tunnel
+-keep class com.imhamiddev.mozvpn.vpn.tun.HevSocks5Tunnel { *; }
+-keepnames class com.imhamiddev.mozvpn.vpn.tun.HevSocks5Tunnel
 -keepclasseswithmembernames class * {
     native <methods>;
 }
@@ -23,7 +23,7 @@
 
 # Privacy: debug logging may contain destination hostnames, so strip those calls (and their string
 # building) from release builds.
--assumenosideeffects class com.vauth.foxyvpn.data.AppLogger {
+-assumenosideeffects class com.imhamiddev.mozvpn.data.AppLogger {
     public void d(java.lang.String, java.lang.String);
 }
 -assumenosideeffects class android.util.Log {
