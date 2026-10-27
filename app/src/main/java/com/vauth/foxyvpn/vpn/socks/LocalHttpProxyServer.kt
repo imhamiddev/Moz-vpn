@@ -283,7 +283,7 @@ class LocalHttpProxyServer(
             unauthenticatedSession = null
         }
 
-        val response = "HTTP/1.1 200 Connection Established\r\nProxy-Agent: FoxyVPN\r\n\r\n"
+        val response = "HTTP/1.1 200 Connection Established\r\nProxy-Agent: MozVPN\r\n\r\n"
         output.write(response.toByteArray(Charsets.US_ASCII))
         output.flush()
 
@@ -484,7 +484,7 @@ class LocalHttpProxyServer(
     private fun sendProxyAuthRequired(output: OutputStream) {
         runCatching {
             val response = "HTTP/1.1 407 Proxy Authentication Required\r\n" +
-                "Proxy-Authenticate: Basic realm=\"FoxyVPN\"\r\n" +
+                "Proxy-Authenticate: Basic realm=\"MozVPN\"\r\n" +
                 "Content-Length: 0\r\n" +
                 "Connection: close\r\n\r\n"
             output.write(response.toByteArray(Charsets.US_ASCII))
