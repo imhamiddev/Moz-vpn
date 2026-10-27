@@ -58,7 +58,7 @@ private enum class LogFilter(val label: String, val levels: Set<LogLevel>) {
 private suspend fun writeLogFile(context: Context): File = withContext(Dispatchers.IO) {
     val dir = File(context.cacheDir, "logs").apply { mkdirs() }
     val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
-    val file = File(dir, "foxyvpn-logs-$stamp.txt")
+    val file = File(dir, "mozvpn-logs-$stamp.txt")
     file.writeText(AppLogger.exportAsText())
     file
 }
@@ -112,7 +112,7 @@ fun LogsScreen(onBack: () -> Unit) {
                                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             }
                             context.startActivity(
-                                Intent.createChooser(shareIntent, "Save or send FoxyVPN logs").apply {
+                                Intent.createChooser(shareIntent, "Save or send Moz VPN logs").apply {
                                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 },
                             )
@@ -122,7 +122,7 @@ fun LogsScreen(onBack: () -> Unit) {
                     }
                     IconButton(onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        clipboard.setPrimaryClip(ClipData.newPlainText("FoxyVPN logs", AppLogger.exportAsText()))
+                        clipboard.setPrimaryClip(ClipData.newPlainText("Moz VPN logs", AppLogger.exportAsText()))
                     }) {
                         Icon(Icons.Filled.ContentCopy, contentDescription = "Copy logs")
                     }
